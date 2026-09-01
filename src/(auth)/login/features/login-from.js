@@ -1,63 +1,88 @@
 "use client";
 
-import { FieldError } from "../_components/field-error";
+import { useState } from "react";
+import Link from "next/link";
+import { ChevronLeft, Eye, EyeOff } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
-interface LoginFormProps {
-  email: string;
-  setEmail: (val: string) => void;
-  password: string;
-  setPassword: (val: string) => void;
-  errors: { email?: string; password?: string };
-  onSubmit: (e: React.FormEvent) => void;
-  loading: boolean;
-}
+export function LoginForm() {
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
-export function LoginForm({
-  email,
-  setEmail,
-  password,
-  setPassword,
-  errors,
-  onSubmit,
-  loading,
-}: LoginFormProps) {
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
+    <div className="mx-auto w-full max-w-100 space-y-6">
+      {/* Back button */}
       <div>
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-black placeholder-gray-400"
-          placeholder="Enter your email address"
-        />
-        <FieldError message={errors.email} />
+        <Link href="/">
+          <Button variant="outline" size="icon" className="h-9 w-9">
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+        </Link>
       </div>
 
-      <div>
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-black placeholder-gray-400"
-          placeholder="Password"
-        />
-        <FieldError message={errors.password} />
+      {/* Heading */}
+      <div className="space-y-1">
+        <h1 className="text-2xl font-semibold tracking-tight">Log in</h1>
+        <p className="text-sm text-gray-500">
+          log in to enjoy your favorite dishes
+        </p>
       </div>
 
-      <div className="flex justify-start">
-        <a href="#" className="text-xs font-semibold text-gray-900 underline hover:opacity-80">
-          Forgot password ?
-        </a>
-      </div>
+      {/* Formside */}
+      <form className="space-y-4">
+        <div className="space-y-3">
+          <Input
+            type={showPassword ? "text" : "password"}
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
 
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full bg-gray-300 hover:bg-black text-white font-medium py-3 rounded-lg text-sm transition-colors disabled:opacity-50 mt-2"
-      >
-        {loading ? "Loading..." : "Let's Go"}
-      </button>
-    </form>
+          <Input
+            type={showPassword ? "text" : "password"}
+            placeholder="Confirm"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+          />
+
+          <div className="flex items-center space-x-2 pt-1">
+            <input
+              type="checkbox"
+              id="show-password"
+              checked={showPassword}
+              onChange={(e) => setShowPassword(e.target.checked)}
+              className="h-4 w-4 rounded border-gray-300"
+            />
+            <Label
+              htmlFor="show-password"
+              className="text-sm font-normal text-gray-600"
+            >
+              Show password
+            </Label>
+          </div>
+        </div>
+
+        <Button
+          type="submit"
+          className="w-full bg-gray-300 text-gray-700 hover:bg-gray-400"
+        >
+          Lets Go
+        </Button>
+      </form>
+
+      {/* Down button */}
+      <p className="text-center text-sm text-gray-500">
+        Already have an account?{" "}
+        <Link
+          href="/login"
+          className="text-blue-600 font-medium hover:underline"
+        >
+          Log in
+        </Link>
+      </p>
+    </div>
   );
 }
