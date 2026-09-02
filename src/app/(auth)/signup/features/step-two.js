@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,8 +12,8 @@ export function StepTwo({ formData, setFormData, errors, onBack, onSubmit }) {
   const [showPassword, setShowPassword] = useState(false);
 
   const isFilled =
-    formData.password?.trim().length > 0 &&
-    formData.confirmPassword?.trim().length > 0;
+    Boolean(formData.password?.trim()) &&
+    Boolean(formData.confirmPassword?.trim());
 
   return (
     <div className="mx-auto w-full max-w-sm space-y-6">
@@ -39,7 +39,7 @@ export function StepTwo({ formData, setFormData, errors, onBack, onSubmit }) {
 
       <form onSubmit={onSubmit} className="space-y-4">
         <div className="space-y-3">
-          <div>
+          <div className="relative">
             <Input
               type={showPassword ? "text" : "password"}
               placeholder="Password"
@@ -53,9 +53,20 @@ export function StepTwo({ formData, setFormData, errors, onBack, onSubmit }) {
                   : ""
               }
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            >
+              {showPassword ? (
+                <EyeOff className="h-4 w-4" />
+              ) : (
+                <Eye className="h-4 w-4" />
+              )}
+            </button>
           </div>
 
-          <div>
+          <div className="relative">
             <Input
               type={showPassword ? "text" : "password"}
               placeholder="Confirm password"

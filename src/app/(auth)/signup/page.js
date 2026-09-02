@@ -1,28 +1,53 @@
 "use client";
 
 import { useState } from "react";
+import { z } from "zod";
 import { StepOne } from "./features/step-one";
 import { StepTwo } from "./features/step-two";
 
+// Step 1 Validation Schema
+const stepOneSchema = z.object({
+  email: z
+    .string()
+    .min(1, { message: "Email is required" })
+    .email({ message: "Invalid email. Use a format like example@email.com" }),
+});
+
+// Step 2 Validation Schema
+const stepTwoSchema = z
+  .object({
+    password: z
+      .string()
+      .min(8, { message: "Password must be at least 8 characters" }),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match. Try again.",
+    path: ["confirmPassword"],
+  });
+
 function validateStepOne(data) {
-  const errors = {};
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!data.email) {
-    errors.email = "Email is required";
-  } else if (!emailRegex.test(data.email)) {
-    errors.email = "Invalid email. Use a format like example@email.com";
+  const result = stepOneSchema.safeParse(data);
+  if (!result.success) {
+    const formattedErrors = {};
+    result.error.issues.forEach((issue) => {
+      formattedErrors[issue.path[0]] = issue.message;
+    });
+    return formattedErrors;
   }
-  return errors;
+  return {};
 }
 
 function validateStepTwo(data) {
-  const errors = {};
-  if (!data.password || data.password.length < 8) {
-    errors.password = "Password must be at least 8 characters";
-  } else if (data.password !== data.confirmPassword) {
-    errors.confirmPassword = "Passwords do not match. Try again.";
+  const result = stepTwoSchema.safeParse(data);
+  if (!result.success) {
+    const formattedErrors = {};
+    result.error.issues.forEach((issue) => {
+      formattedErrors[issue.path[0]] = issue.message;
+    });
+    return formattedErrors;
   }
-  return errors;
+  return {};
 }
 
 export default function SignupPage() {
