@@ -8,6 +8,7 @@ import { StepTwo } from "./features/step-two";
 const stepOneSchema = z.object({
   email: z
     .string()
+    .trim()
     .min(1, { message: "Email is required" })
     .email({ message: "Invalid email. Use a format like example@email.com" }),
 });
@@ -16,8 +17,11 @@ const stepTwoSchema = z
   .object({
     password: z
       .string()
-      .trim()
-      .min(8, { message: "Password must be at least 8 characters" }),
+      .min(8, { message: "Password must be at least 8 characters" })
+      .regex(
+        /[^A-Za-z0-9]/,
+        "Password must contain at least one special character",
+      ),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
