@@ -56,7 +56,7 @@ export function StepOne({ formData, setFormData, errors, onNext }) {
               : "bg-gray-200 text-gray-400 cursor-not-allowed hover:bg-gray-200"
           }`}
         >
-          Let's Go
+          Lets Go
         </Button>
       </div>
 

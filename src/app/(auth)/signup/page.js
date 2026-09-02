@@ -5,7 +5,6 @@ import { z } from "zod";
 import { StepOne } from "./features/step-one";
 import { StepTwo } from "./features/step-two";
 
-// Step 1 Validation Schema
 const stepOneSchema = z.object({
   email: z
     .string()
@@ -13,11 +12,11 @@ const stepOneSchema = z.object({
     .email({ message: "Invalid email. Use a format like example@email.com" }),
 });
 
-// Step 2 Validation Schema
 const stepTwoSchema = z
   .object({
     password: z
       .string()
+      .trim()
       .min(8, { message: "Password must be at least 8 characters" }),
     confirmPassword: z.string(),
   })

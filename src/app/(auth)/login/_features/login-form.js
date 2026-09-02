@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FieldError } from "../_components/field-error";
 
-// Pure validate function
 function validate(email) {
   const errors = {};
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -110,12 +109,12 @@ export function LoginForm() {
               : "bg-gray-200 text-gray-400 cursor-not-allowed hover:bg-gray-200"
           }`}
         >
-          Let's Go
+          Lets Go
         </Button>
       </form>
 
       <p className="text-center text-sm text-gray-500">
-        Don't have an account?{" "}
+        Dont have an account?{" "}
         <Link
           href="/signup"
           className="text-blue-600 font-medium hover:underline"
