@@ -8,12 +8,19 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { FieldError } from "../../login/_components/field-error";
 
-export function StepTwo({ formData, setFormData, errors, onBack, onSubmit }) {
+export function StepTwo({
+  register,
+  errors,
+  onBack,
+  onSubmit,
+  watch,
+  isSubmitting,
+}) {
   const [showPassword, setShowPassword] = useState(false);
 
-  const isFilled =
-    Boolean(formData.password?.trim()) &&
-    Boolean(formData.confirmPassword?.trim());
+  const password = watch("password") || "";
+  const confirmPassword = watch("confirmPassword") || "";
+  const isFilled = password.length >= 8 && confirmPassword.length > 0;
 
   return (
     <div className="mx-auto w-full max-w-sm space-y-6">
@@ -33,7 +40,7 @@ export function StepTwo({ formData, setFormData, errors, onBack, onSubmit }) {
           Create a strong password
         </h1>
         <p className="text-sm text-gray-500">
-          Create a strong password with at least 8 characters.
+          Must be at least 8 characters long with a special character.
         </p>
       </div>
 
@@ -43,10 +50,7 @@ export function StepTwo({ formData, setFormData, errors, onBack, onSubmit }) {
             <Input
               type={showPassword ? "text" : "password"}
               placeholder="Password"
-              value={formData.password || ""}
-              onChange={(e) =>
-                setFormData((prev) => ({ ...prev, password: e.target.value }))
-              }
+              {...register("password")}
               className={
                 errors.password
                   ? "border-red-500 focus-visible:ring-red-500"
@@ -70,13 +74,7 @@ export function StepTwo({ formData, setFormData, errors, onBack, onSubmit }) {
             <Input
               type={showPassword ? "text" : "password"}
               placeholder="Confirm password"
-              value={formData.confirmPassword || ""}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  confirmPassword: e.target.value,
-                }))
-              }
+              {...register("confirmPassword")}
               className={
                 errors.confirmPassword || errors.password
                   ? "border-red-500 focus-visible:ring-red-500"
@@ -85,7 +83,12 @@ export function StepTwo({ formData, setFormData, errors, onBack, onSubmit }) {
             />
           </div>
 
-          <FieldError message={errors.password || errors.confirmPassword} />
+          <FieldError
+            message={
+              errors.password?.message || errors.confirmPassword?.message
+            }
+          />
+          <FieldError message={errors.apiError?.message} />
 
           <div className="flex items-center space-x-2 pt-1">
             <Checkbox
@@ -104,14 +107,14 @@ export function StepTwo({ formData, setFormData, errors, onBack, onSubmit }) {
 
         <Button
           type="submit"
-          disabled={!isFilled}
+          disabled={!isFilled || isSubmitting}
           className={`w-full transition-colors ${
             isFilled
               ? "bg-black text-white hover:bg-gray-800"
               : "bg-gray-200 text-gray-400 cursor-not-allowed hover:bg-gray-200"
           }`}
         >
-          Lets Go
+          {isSubmitting ? "Creating..." : "Let's Go"}
         </Button>
       </form>
     </div>

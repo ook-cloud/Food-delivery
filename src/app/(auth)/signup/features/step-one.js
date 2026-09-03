@@ -6,12 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FieldError } from "../../login/_components/field-error";
 
-export function StepOne({ formData, setFormData, errors, onNext }) {
-  const handleEmailChange = (e) => {
-    setFormData((prev) => ({ ...prev, email: e.target.value }));
-  };
-
-  const isFilled = formData.email.trim().length > 0 && !errors.email;
+export function StepOne({ register, errors, onNext, watch }) {
+  const emailValue = watch("email") || "";
+  const isFilled = emailValue.trim().length > 0 && !errors.email;
 
   return (
     <div className="mx-auto w-full max-w-sm space-y-6">
@@ -37,13 +34,12 @@ export function StepOne({ formData, setFormData, errors, onNext }) {
           <Input
             type="text"
             placeholder="Enter your email address"
-            value={formData.email}
-            onChange={handleEmailChange}
+            {...register("email")}
             className={
               errors.email ? "border-red-500 focus-visible:ring-red-500" : ""
             }
           />
-          <FieldError message={errors.email} />
+          <FieldError message={errors.email?.message} />
         </div>
 
         <Button
@@ -56,7 +52,7 @@ export function StepOne({ formData, setFormData, errors, onNext }) {
               : "bg-gray-200 text-gray-400 cursor-not-allowed hover:bg-gray-200"
           }`}
         >
-          Lets Go
+          Let,s Go
         </Button>
       </div>
 
