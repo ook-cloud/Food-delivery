@@ -1,20 +1,22 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { StepOne } from "./features/step-one";
-import { StepTwo } from "./features/step-two";
+import { StepOne } from "./_features/step-one";
+import { StepTwo } from "./_features/step-two";
+import { StepDots } from "./_components/step-dots";
+import { useAuth } from "@/providers/auth-provider";
 
-const stepOneSchema = z.object({
-  email: z
-    .string()
-    .trim()
-    .min(1, { message: "Email is required" })
-    .email({ message: "Invalid email. Use a format like example@email.com" }),
-});
-
-const stepTwoSchema = z
+const signupSchema = z
   .object({
+    email: z
+      .string()
+      .trim()
+      .min(1, { message: "Email is required" })
+      .email({ message: "Invalid email. Use a format like example@email.com" }),
     password: z
       .string()
       .min(8, { message: "Password must be at least 8 characters" })
@@ -29,82 +31,83 @@ const stepTwoSchema = z
     path: ["confirmPassword"],
   });
 
-function validateStepOne(data) {
-  const result = stepOneSchema.safeParse(data);
-  if (!result.success) {
-    const formattedErrors = {};
-    result.error.issues.forEach((issue) => {
-      formattedErrors[issue.path[0]] = issue.message;
-    });
-    return formattedErrors;
-  }
-  return {};
-}
-
-function validateStepTwo(data) {
-  const result = stepTwoSchema.safeParse(data);
-  if (!result.success) {
-    const formattedErrors = {};
-    result.error.issues.forEach((issue) => {
-      formattedErrors[issue.path[0]] = issue.message;
-    });
-    return formattedErrors;
-  }
-  return {};
-}
-
 export default function SignupPage() {
   const [step, setStep] = useState(1);
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-    confirmPassword: "",
+  const [apiError, setApiError] = useState("");
+  const router = useRouter();
+  const { login } = useAuth();
+
+  const {
+    register,
+    handleSubmit,
+    trigger,
+    watch,
+    setError,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    resolver: zodResolver(signupSchema),
+    mode: "onChange",
+    defaultValues: { email: "", password: "", confirmPassword: "" },
   });
-  const [errors, setErrors] = useState({});
 
-  const handleNext = () => {
-    const errs = validateStepOne(formData);
-    if (Object.keys(errs).length > 0) {
-      setErrors(errs);
-      return;
+  const handleNext = async () => {
+    const isValid = await trigger("email");
+    if (isValid) setStep(2);
+  };
+
+  const handleBack = () => setStep(1);
+
+  const onSubmit = async (data) => {
+    setApiError("");
+    try {
+      const response = await fetch("http://localhost:5000/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: data.email, password: data.password }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        if (response.status === 409) {
+          setStep(1);
+          setError("email", { type: "manual", message: result.message });
+        } else {
+          setApiError(result.message || "Signup failed");
+        }
+        return;
+      }
+
+      login(result.token, result.user);
+      router.push("/");
+    } catch (err) {
+      setApiError("Server error. Please check your connection.");
     }
-    setErrors({});
-    setStep(2);
   };
 
-  const handleBack = () => {
-    setErrors({});
-    setStep(1);
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const errs = validateStepTwo(formData);
-    if (Object.keys(errs).length > 0) {
-      setErrors(errs);
-      return;
-    }
-
-    console.log("Signup submitted:", {
-      email: formData.email,
-      password: formData.password,
-    });
-  };
-
-  return step === 1 ? (
-    <StepOne
-      formData={formData}
-      setFormData={setFormData}
-      errors={errors}
-      onNext={handleNext}
-    />
-  ) : (
-    <StepTwo
-      formData={formData}
-      setFormData={setFormData}
-      errors={errors}
-      onBack={handleBack}
-      onSubmit={handleSubmit}
-    />
+  return (
+    <div className="w-full">
+      <StepDots currentStep={step} totalSteps={2} />
+      {step === 1 ? (
+        <StepOne
+          register={register}
+          errors={errors}
+          onNext={handleNext}
+          watch={watch}
+        />
+      ) : (
+        <StepTwo
+          register={register}
+          errors={{
+            ...errors,
+            apiError: apiError ? { message: apiError } : undefined,
+          }}
+          onBack={handleBack}
+          onSubmit={handleSubmit(onSubmit)}
+          watch={watch}
+          isSubmitting={isSubmitting}
+        />
+      )}
+    </div>
   );
 }
