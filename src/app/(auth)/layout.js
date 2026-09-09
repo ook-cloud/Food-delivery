@@ -3,10 +3,10 @@ import Image from "next/image";
 export default function AuthLayout({ children }) {
   return (
     <div className="flex h-screen w-screen overflow-hidden">
-      <div className="w-1/2 flex flex-col justify-center items-center p-8 overflow-y-auto">
+      <div className="w-full md:w-1/2 flex flex-col justify-center items-center p-8 overflow-y-auto">
         <div className="w-full max-w-sm">{children}</div>
       </div>
-      <div className="w-1/2 p-4 h-full">
+      <div className="hidden md:block w-1/2 p-4 h-full">
         <div className="relative w-full h-full rounded-2xl overflow-hidden bg-gray-100">
           <Image
             src="/auth-bg.svg"
