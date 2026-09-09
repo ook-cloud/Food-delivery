@@ -1,17 +1,14 @@
-import { AuthProvider } from "@/providers/auth-provider";
-import "./globals.css";
+import "@/app/globals.css"; // Төслийн үндсэн Tailwind CSS импорт
 
 export const metadata = {
   title: "Food Delivery App",
-  description: "Delicious food delivered to your door",
+  description: "Order your favorite food easily",
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="mn">
-      <body>
-        <AuthProvider>{children}</AuthProvider>
-      </body>
+      <body>{children}</body>
     </html>
   );
 }

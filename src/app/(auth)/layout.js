@@ -1,21 +1,15 @@
-import Image from "next/image";
-
 export default function AuthLayout({ children }) {
   return (
-    <div className="flex h-screen w-screen overflow-hidden">
-      <div className="w-full md:w-1/2 flex flex-col justify-center items-center p-8 overflow-y-auto">
-        <div className="w-full max-w-sm">{children}</div>
+    <div className="flex min-h-screen">
+      <div className="flex flex-1 flex-col justify-center px-4 py-12 sm:px-6 lg:px-20 xl:px-24">
+        <div className="mx-auto w-full max-w-sm">{children}</div>
       </div>
-      <div className="hidden md:block w-1/2 p-4 h-full">
-        <div className="relative w-full h-full rounded-2xl overflow-hidden bg-gray-100">
-          <Image
-            src="/auth-bg.svg"
-            alt="Auth background"
-            fill
-            className="object-cover"
-            priority
-          />
-        </div>
+      <div className="relative hidden w-0 flex-1 lg:block">
+        <img
+          className="absolute inset-0 h-full w-full object-cover"
+          src="/images/delivery-bg.jpg"
+          alt="Delivery background"
+        />
       </div>
     </div>
   );

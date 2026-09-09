@@ -1,7 +1,15 @@
+import { clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
+
+export function cn(...inputs) {
+  return twMerge(clsx(inputs));
+}
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
-export async function fetcher(endpoint: string, options?: RequestInit) {
-  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+export async function fetcher(endpoint, options = {}) {
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
   const res = await fetch(`${API_URL}${endpoint}`, {
     ...options,

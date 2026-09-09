@@ -1,105 +1,148 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { ChevronLeft, Eye, EyeOff } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useAuth } from "@/providers/auth-provider";
-import { FieldError } from "../_components/field-error";
-import { fetcher } from "@/lib/api";
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Eye, EyeOff } from "lucide-react";
+import { clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
 
-export function LoginForm() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+function cn(...inputs) {
+  return twMerge(clsx(inputs));
+}
+
+// Login Validation Schema
+const loginSchema = z.object({
+  email: z
+    .string()
+    .min(1, "И-мэйл хаягаа оруулна уу")
+    .email("Зөв и-мэйл хаяг оруулна уу"),
+  password: z.string().min(6, "Нууц үг хамгийн багадаа 6 тэмдэгт байна"),
+});
+
+export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
-  const router = useRouter();
-  const { login } = useAuth();
+  const [serverError, setServerError] = useState("");
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isValid },
+  } = useForm({
+    resolver: zodResolver(loginSchema),
+    mode: "onChange",
+  });
 
-    try {
-      const data = await fetcher("/auth/login", {
-        method: "POST",
-        body: JSON.stringify({ email, password }),
-      });
-
-      login(data.token, data.user);
-      router.push("/");
-    } catch (err) {
-      setError(err.message);
-    }
+  const onSubmit = (data) => {
+    setServerError("");
+    console.log("Login data:", data);
   };
 
-  const isFilled = email.trim().length > 0 && password.length > 0;
-
   return (
-    <div className="space-y-6">
-      <Link href="/">
-        <Button variant="outline" size="icon" className="h-9 w-9">
-          <ChevronLeft className="h-4 w-4" />
-        </Button>
-      </Link>
+    <div className="flex min-h-[500px] w-full max-w-[900px] overflow-hidden rounded-2xl bg-white shadow-xl">
+      <div className="flex flex-1 flex-col justify-between p-8 sm:p-12">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Log in</h2>
+          <p className="mt-1 text-sm text-gray-400">
+            Welcome back! Please enter your details.
+          </p>
 
-      <div className="space-y-1">
-        <h1 className="text-2xl font-semibold tracking-tight">Log in</h1>
-        <p className="text-sm text-gray-500">
-          Log in to enjoy your favorite dishes
+          <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4">
+            <div>
+              <input
+                {...register("email")}
+                type="email"
+                placeholder="Email"
+                className={cn(
+                  "w-full rounded-lg border px-3.5 py-2.5 text-sm outline-none transition-all placeholder:text-gray-300",
+                  errors.email
+                    ? "border-red-500"
+                    : "border-gray-200 focus:border-black",
+                )}
+              />
+              {errors.email && (
+                <p className="mt-1 text-xs text-red-500">
+                  {errors.email.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <div className="relative">
+                <input
+                  {...register("password")}
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Password"
+                  className={cn(
+                    "w-full rounded-lg border px-3.5 py-2.5 pr-10 text-sm outline-none transition-all placeholder:text-gray-300",
+                    errors.password
+                      ? "border-red-500"
+                      : "border-gray-200 focus:border-black",
+                  )}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
+              {errors.password && (
+                <p className="mt-1 text-xs text-red-500">
+                  {errors.password.message}
+                </p>
+              )}
+            </div>
+
+            {serverError && (
+              <p className="text-xs text-red-500">{serverError}</p>
+            )}
+
+            <div className="flex justify-end">
+              <a
+                href="/forgot-password"
+                className="text-xs font-medium text-gray-500 hover:text-black"
+              >
+                Forgot password?
+              </a>
+            </div>
+
+            <button
+              type="submit"
+              disabled={!isValid}
+              className={cn(
+                "w-full rounded-lg py-2.5 text-sm font-semibold transition-all",
+                isValid
+                  ? "bg-black text-white hover:bg-gray-800"
+                  : "cursor-not-allowed bg-gray-200 text-gray-400",
+              )}
+            >
+              Log in
+            </button>
+          </form>
+        </div>
+
+        <p className="mt-8 text-center text-sm text-gray-400">
+          Don't have an account?{" "}
+          <a href="/signup" className="font-medium text-black hover:underline">
+            Sign up
+          </a>
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <Input
-          type="email"
-          placeholder="Enter your email address"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+      <div className="hidden flex-1 p-3 sm:block">
+        <img
+          src="https://images.unsplash.com/photo-1526367790999-0150786686a2?q=80&w=1000&auto=format&fit=crop"
+          alt="Delivery Driver"
+          className="h-full w-full rounded-xl object-cover"
         />
-
-        <div className="relative">
-          <Input
-            type={showPassword ? "text" : "password"}
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <button
-            type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-          >
-            {showPassword ? (
-              <EyeOff className="h-4 w-4" />
-            ) : (
-              <Eye className="h-4 w-4" />
-            )}
-          </button>
-        </div>
-
-        <FieldError message={error} />
-
-        <Button
-          type="submit"
-          disabled={!isFilled}
-          className="w-full bg-black text-white hover:bg-gray-800 disabled:bg-gray-200 disabled:text-gray-400 transition-colors"
-        >
-          Let's Go
-        </Button>
-      </form>
-
-      <p className="text-center text-sm text-gray-500">
-        Don't have an account?{" "}
-        <Link
-          href="/signup"
-          className="text-blue-600 font-medium hover:underline"
-        >
-          Sign up
-        </Link>
-      </p>
+      </div>
     </div>
   );
 }

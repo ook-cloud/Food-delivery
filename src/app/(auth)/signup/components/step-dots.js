@@ -1,14 +1,20 @@
-export function StepDots({ currentStep, totalSteps }) {
+import React from "react";
+
+export default function StepDots({ currentStep, totalSteps = 2 }) {
   return (
-    <div className="flex justify-center items-center space-x-2 my-4">
-      {Array.from({ length: totalSteps }).map((_, index) => (
-        <div
-          key={index}
-          className={`h-2 rounded-full transition-all duration-300 ${
-            index + 1 === currentStep ? "w-8 bg-black" : "w-2 bg-gray-300"
-          }`}
-        />
-      ))}
+    <div className="flex items-center justify-center gap-2 pt-2">
+      {Array.from({ length: totalSteps }).map((_, index) => {
+        const stepNumber = index + 1;
+        const isActive = currentStep === stepNumber;
+        return (
+          <div
+            key={stepNumber}
+            className={`h-2 rounded-full transition-all duration-300 ${
+              isActive ? "w-6 bg-black" : "w-2 bg-gray-300"
+            }`}
+          />
+        );
+      })}
     </div>
   );
 }
