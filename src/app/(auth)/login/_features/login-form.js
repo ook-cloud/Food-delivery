@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/providers/auth-provider";
 import { FieldError } from "../_components/field-error";
+import { fetcher } from "@/lib/api";
 
 export function LoginForm() {
   const [email, setEmail] = useState("");
@@ -22,17 +23,13 @@ export function LoginForm() {
     setError("");
 
     try {
-      const res = await fetch("http://localhost:5000/auth/login", {
+      const data = await fetcher("/auth/login", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
-      const data = await res.json();
-
-      if (!res.ok) throw new Error(data.message || "Нэвтрэхэд алдаа гарлаа");
 
       login(data.token, data.user);
-      router.push("/main");
+      router.push("/");
     } catch (err) {
       setError(err.message);
     }
@@ -42,7 +39,7 @@ export function LoginForm() {
 
   return (
     <div className="space-y-6">
-      <Link href="/main">
+      <Link href="/">
         <Button variant="outline" size="icon" className="h-9 w-9">
           <ChevronLeft className="h-4 w-4" />
         </Button>
@@ -83,21 +80,12 @@ export function LoginForm() {
           </button>
         </div>
 
-        <div className="flex justify-end">
-          <Link
-            href="/forgot-password"
-            className="text-xs text-blue-600 hover:underline"
-          >
-            Forgot password?
-          </Link>
-        </div>
-
         <FieldError message={error} />
 
         <Button
           type="submit"
           disabled={!isFilled}
-          className="w-full bg-black text-white hover:bg-gray-800 disabled:bg-gray-200 disabled:text-gray-400"
+          className="w-full bg-black text-white hover:bg-gray-800 disabled:bg-gray-200 disabled:text-gray-400 transition-colors"
         >
           Let's Go
         </Button>

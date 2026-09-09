@@ -1,8 +1,9 @@
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
 export async function fetcher(endpoint: string, options?: RequestInit) {
   const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
-  // Next.js-ийн өөрийн API routes (/api/...) руу харьцангуй замаар хүсэлт явуулна
-  const res = await fetch(`/api${endpoint}`, {
+  const res = await fetch(`${API_URL}${endpoint}`, {
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -13,7 +14,7 @@ export async function fetcher(endpoint: string, options?: RequestInit) {
 
   if (!res.ok) {
     const errorData = await res.json().catch(() => ({}));
-    throw new Error(errorData.message || "API Request Failed");
+    throw new Error(errorData.message || "Хүсэлт амжилтгүй боллоо");
   }
 
   return res.json();

@@ -5,10 +5,11 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { StepOne } from "./features/step-one";
-import { StepTwo } from "./features/step-two";
-import { StepDots } from "./components/step-dots";
+import { StepOne } from "./_features/step-one";
+import { StepTwo } from "./_features/step-two";
+import { StepDots } from "./_components/step-dots";
 import { useAuth } from "@/providers/auth-provider";
+import { fetcher } from "@/lib/api";
 
 const signupSchema = z
   .object({
@@ -60,28 +61,24 @@ export default function SignupPage() {
   const onSubmit = async (data) => {
     setApiError("");
     try {
-      const response = await fetch("http://localhost:5000/auth/signup", {
+      // Backend-ийн /auth/signup руу шууд хүсэлт явуулна
+      const result = await fetcher("/auth/signup", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: data.email, password: data.password }),
       });
 
-      const result = await response.json();
-
-      if (!response.ok) {
-        if (response.status === 409) {
-          setStep(1);
-          setError("email", { type: "manual", message: result.message });
-        } else {
-          setApiError(result.message || "Signup failed");
-        }
-        return;
-      }
-
       login(result.token, result.user);
-      router.push("/");
+      router.push("/main");
     } catch (err) {
-      setApiError("Server error. Please check your connection.");
+      if (err.message.includes("409") || err.message.includes("exists")) {
+        setStep(1);
+        setError("email", {
+          type: "manual",
+          message: "И-мэйл бүртгэгдсэн байна",
+        });
+      } else {
+        setApiError(err.message || "Бүртгүүлэхэд алдаа гарлаа");
+      }
     }
   };
 
