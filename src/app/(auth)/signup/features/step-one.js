@@ -1,103 +1,70 @@
 "use client";
 
-import React from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { ArrowRight } from "lucide-react";
-import { clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
+import Link from "next/link";
+import { ChevronLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { FieldError } from "../../login/_components/field-error";
 
-function cn(...inputs) {
-  return twMerge(clsx(inputs));
-}
-
-// Step 1 Validation Schema
-const stepOneSchema = z.object({
-  email: z
-    .string()
-    .min(1, { message: "И-мэйл хаягаа оруулна уу" })
-    .email({ message: "Зөв и-мэйл хаяг оруулна уу" }),
-});
-
-export default function StepOne({ formData, onNext }) {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isValid },
-  } = useForm({
-    resolver: zodResolver(stepOneSchema),
-    mode: "onChange",
-    defaultValues: { email: formData.email || "" },
-  });
-
-  const onSubmit = (data) => {
-    onNext(data);
-  };
+export function StepOne({ register, errors, onNext, watch }) {
+  const emailValue = watch("email") || "";
+  const isFilled = emailValue.trim().length > 0 && !errors.email;
 
   return (
-    <div className="flex min-h-[500px] w-full max-w-[900px] overflow-hidden rounded-2xl bg-white shadow-xl">
-      <div className="flex flex-1 flex-col justify-between p-8 sm:p-12">
-        <div>
-          <span className="text-sm font-medium text-gray-400">1 / 2</span>
-          <h2 className="mt-4 text-2xl font-bold text-gray-900">
-            Create your account
-          </h2>
-          <p className="mt-1 text-sm text-gray-400">
-            Sign up to explore your favorite dishes
-          </p>
+    <div className="mx-auto w-full max-w-sm space-y-6">
+      <div>
+        <Link href="/login">
+          <Button variant="outline" size="icon" className="h-9 w-9">
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+        </Link>
+      </div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-4">
-            <div>
-              <input
-                {...register("email")}
-                type="email"
-                placeholder="Email"
-                className={cn(
-                  "w-full rounded-lg border px-3.5 py-2.5 text-sm outline-none transition-all placeholder:text-gray-300",
-                  errors.email
-                    ? "border-red-500"
-                    : "border-gray-200 focus:border-black",
-                )}
-              />
-              {errors.email && (
-                <p className="mt-1.5 text-xs text-red-500">
-                  {errors.email.message}
-                </p>
-              )}
-            </div>
-
-            <button
-              type="submit"
-              disabled={!isValid}
-              className={cn(
-                "flex w-full items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold transition-all",
-                isValid
-                  ? "bg-black text-white hover:bg-gray-800"
-                  : "cursor-not-allowed bg-gray-200 text-gray-400",
-              )}
-            >
-              Continue
-              <ArrowRight className="h-4 w-4" />
-            </button>
-          </form>
-        </div>
-
-        <p className="mt-8 text-center text-sm text-gray-400">
-          Already have an account?{" "}
-          <a href="/login" className="font-medium text-black hover:underline">
-            Log in
-          </a>
+      <div className="space-y-1">
+        <h1 className="text-2xl font-semibold tracking-tight">
+          Create your account
+        </h1>
+        <p className="text-sm text-gray-500">
+          Sign up to explore your favorite dishes
         </p>
       </div>
 
-      <div className="hidden flex-1 p-3 sm:block">
-        <img
-          src="https://images.unsplash.com/photo-1526367790999-0150786686a2?q=80&w=1000&auto=format&fit=crop"
-          alt="Delivery Driver"
-          className="h-full w-full rounded-xl object-cover"
-        />
+      <div className="space-y-4">
+        <div>
+          <Input
+            type="text"
+            placeholder="Enter your email address"
+            {...register("email")}
+            className={
+              errors.email ? "border-red-500 focus-visible:ring-red-500" : ""
+            }
+          />
+          <FieldError message={errors.email?.message} />
+        </div>
+
+        <Button
+          type="button"
+          onClick={onNext}
+          disabled={!isFilled}
+          className={`w-full transition-colors ${
+            isFilled
+              ? "bg-black text-white hover:bg-gray-800"
+              : "bg-gray-200 text-gray-400 cursor-not-allowed hover:bg-gray-200"
+          }`}
+        >
+          Let,s Go
+        </Button>
       </div>
+
+      <p className="text-center text-sm text-gray-500">
+        Already have an account?{" "}
+        <Link
+          href="/login"
+          className="text-blue-600 font-medium hover:underline"
+        >
+          Log in
+        </Link>
+      </p>
     </div>
   );
 }

@@ -1,148 +1,127 @@
 "use client";
 
-import React, { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { Eye, EyeOff } from "lucide-react";
-import { clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { useState } from "react";
+import Link from "next/link";
+import { ChevronLeft, Eye, EyeOff } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { FieldError } from "../_components/field-error";
 
-function cn(...inputs) {
-  return twMerge(clsx(inputs));
+function validate(email) {
+  const errors = {};
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if (!email) {
+    errors.email = "Email is required";
+  } else if (!emailRegex.test(email)) {
+    errors.email = "Invalid email. Use a format like example@email.com";
+  }
+  return errors;
 }
 
-// Login Validation Schema
-const loginSchema = z.object({
-  email: z
-    .string()
-    .min(1, "И-мэйл хаягаа оруулна уу")
-    .email("Зөв и-мэйл хаяг оруулна уу"),
-  password: z.string().min(6, "Нууц үг хамгийн багадаа 6 тэмдэгт байна"),
-});
-
-export default function LoginForm() {
+export function LoginForm() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [serverError, setServerError] = useState("");
+  const [errors, setErrors] = useState({});
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isValid },
-  } = useForm({
-    resolver: zodResolver(loginSchema),
-    mode: "onChange",
-  });
-
-  const onSubmit = (data) => {
-    setServerError("");
-    console.log("Login data:", data);
+  const handleEmailChange = (e) => {
+    const val = e.target.value;
+    setEmail(val);
+    if (errors.email) {
+      setErrors((prev) => ({ ...prev, email: undefined }));
+    }
   };
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const validationErrors = validate(email);
+
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    console.log("Login submitted:", { email, password });
+  };
+
+  const isFilled = email.trim().length > 0 && !errors.email;
+
   return (
-    <div className="flex min-h-[500px] w-full max-w-[900px] overflow-hidden rounded-2xl bg-white shadow-xl">
-      <div className="flex flex-1 flex-col justify-between p-8 sm:p-12">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Log in</h2>
-          <p className="mt-1 text-sm text-gray-400">
-            Welcome back! Please enter your details.
-          </p>
+    <div className="mx-auto w-full max-w-sm space-y-6">
+      <div>
+        <Link href="/">
+          <Button variant="outline" size="icon" className="h-9 w-9">
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+        </Link>
+      </div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4">
-            <div>
-              <input
-                {...register("email")}
-                type="email"
-                placeholder="Email"
-                className={cn(
-                  "w-full rounded-lg border px-3.5 py-2.5 text-sm outline-none transition-all placeholder:text-gray-300",
-                  errors.email
-                    ? "border-red-500"
-                    : "border-gray-200 focus:border-black",
-                )}
-              />
-              {errors.email && (
-                <p className="mt-1 text-xs text-red-500">
-                  {errors.email.message}
-                </p>
-              )}
-            </div>
-
-            <div>
-              <div className="relative">
-                <input
-                  {...register("password")}
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Password"
-                  className={cn(
-                    "w-full rounded-lg border px-3.5 py-2.5 pr-10 text-sm outline-none transition-all placeholder:text-gray-300",
-                    errors.password
-                      ? "border-red-500"
-                      : "border-gray-200 focus:border-black",
-                  )}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
-                </button>
-              </div>
-              {errors.password && (
-                <p className="mt-1 text-xs text-red-500">
-                  {errors.password.message}
-                </p>
-              )}
-            </div>
-
-            {serverError && (
-              <p className="text-xs text-red-500">{serverError}</p>
-            )}
-
-            <div className="flex justify-end">
-              <a
-                href="/forgot-password"
-                className="text-xs font-medium text-gray-500 hover:text-black"
-              >
-                Forgot password?
-              </a>
-            </div>
-
-            <button
-              type="submit"
-              disabled={!isValid}
-              className={cn(
-                "w-full rounded-lg py-2.5 text-sm font-semibold transition-all",
-                isValid
-                  ? "bg-black text-white hover:bg-gray-800"
-                  : "cursor-not-allowed bg-gray-200 text-gray-400",
-              )}
-            >
-              Log in
-            </button>
-          </form>
-        </div>
-
-        <p className="mt-8 text-center text-sm text-gray-400">
-          Don't have an account?{" "}
-          <a href="/signup" className="font-medium text-black hover:underline">
-            Sign up
-          </a>
+      <div className="space-y-1">
+        <h1 className="text-2xl font-semibold tracking-tight">Log in</h1>
+        <p className="text-sm text-gray-500">
+          Log in to enjoy your favorite dishes
         </p>
       </div>
 
-      <div className="hidden flex-1 p-3 sm:block">
-        <img
-          src="https://images.unsplash.com/photo-1526367790999-0150786686a2?q=80&w=1000&auto=format&fit=crop"
-          alt="Delivery Driver"
-          className="h-full w-full rounded-xl object-cover"
-        />
-      </div>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="space-y-3">
+          <div>
+            <Input
+              type="text"
+              placeholder="Enter your email address"
+              value={email}
+              onChange={handleEmailChange}
+              className={
+                errors.email ? "border-red-500 focus-visible:ring-red-500" : ""
+              }
+            />
+            <FieldError message={errors.email} />
+          </div>
+
+          <div className="relative">
+            <Input
+              type={showPassword ? "text" : "password"}
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            >
+              {showPassword ? (
+                <EyeOff className="h-4 w-4" />
+              ) : (
+                <Eye className="h-4 w-4" />
+              )}
+            </button>
+          </div>
+        </div>
+
+        <Button
+          type="submit"
+          disabled={!isFilled}
+          className={`w-full transition-colors ${
+            isFilled
+              ? "bg-black text-white hover:bg-gray-800"
+              : "bg-gray-200 text-gray-400 cursor-not-allowed hover:bg-gray-200"
+          }`}
+        >
+          Lets Go
+        </Button>
+      </form>
+
+      <p className="text-center text-sm text-gray-500">
+        Dont have an account?{" "}
+        <Link
+          href="/signup"
+          className="text-blue-600 font-medium hover:underline"
+        >
+          Sign up
+        </Link>
+      </p>
     </div>
   );
 }
