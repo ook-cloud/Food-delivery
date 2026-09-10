@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { server } from "@/_api/api";
 import { StepOne } from "./features/step-one";
 import { StepTwo } from "./features/step-two";
 import { StepDots } from "./components/step-dots";
@@ -38,7 +37,6 @@ export default function SignupPage() {
     setValue,
     watch,
     control,
-    setError,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(signupSchema),
@@ -55,33 +53,7 @@ export default function SignupPage() {
 
   const onSubmit = async (data) => {
     setApiError("");
-    try {
-      const response = await server.post("/auth/signup", {
-        email: data.email,
-        password: data.password,
-      });
-
-      const result = response.data;
-
-      localStorage.setItem("token", result.token);
-      localStorage.setItem("user", JSON.stringify(result.user));
-
-      router.push("/");
-    } catch (err) {
-      if (err.response) {
-        if (err.response.status === 409) {
-          setStep(1);
-          setError("email", {
-            type: "manual",
-            message: err.response.data.message || "Email already registered",
-          });
-        } else {
-          setApiError(err.response.data.message || "Signup failed");
-        }
-      } else {
-        setApiError("Server error. Please check your connection.");
-      }
-    }
+    router.push("/login");
   };
 
   return (

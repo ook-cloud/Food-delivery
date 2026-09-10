@@ -14,12 +14,11 @@ export function StepTwo({
   errors,
   onBack,
   onSubmit,
-  control, // page.jsx-ээс control ирэх ёстой
+  control,
   isSubmitting,
 }) {
   const [showPassword, setShowPassword] = useState(false);
 
-  // useWatch ашиглан бичих бүрд шууд шинэчлэгдэнэ
   const password = useWatch({ control, name: "password", defaultValue: "" });
   const confirmPassword = useWatch({
     control,
@@ -27,7 +26,6 @@ export function StepTwo({
     defaultValue: "",
   });
 
-  // Нууц үг 8+ тэмдэгттэй, хоорондоо таарч байвал товч идэвхжинэ
   const isValid =
     password.length >= 8 &&
     confirmPassword.length >= 8 &&
