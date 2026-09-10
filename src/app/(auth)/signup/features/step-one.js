@@ -1,25 +1,33 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FieldError } from "../../login/_components/field-error";
 
-export function StepOne({ register, errors, onNext, watch }) {
-  const emailValue = watch("email") || "";
-  const isFilled = emailValue.trim().length > 0 && !errors.email;
+export function StepOne({ initialEmail, onNext }) {
+  const [email, setEmail] = useState(initialEmail || "");
+  const [error, setError] = useState("");
+
+  // Email форматыг Regex-ээр шалгах
+  const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+
+  const handleNextStep = () => {
+    if (!email.trim()) {
+      setError("Email is required");
+      return;
+    }
+    if (!isValidEmail) {
+      setError("Invalid email. Use a format like example@email.com");
+      return;
+    }
+    setError("");
+    onNext(email.trim()); // Имэйлийг цааш нь эцэг компонент руу дамжуулна
+  };
 
   return (
     <div className="mx-auto w-full max-w-sm space-y-6">
-      <div>
-        <Link href="/login">
-          <Button variant="outline" size="icon" className="h-9 w-9">
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-        </Link>
-      </div>
-
       <div className="space-y-1">
         <h1 className="text-2xl font-semibold tracking-tight">
           Create your account
@@ -32,27 +40,29 @@ export function StepOne({ register, errors, onNext, watch }) {
       <div className="space-y-4">
         <div>
           <Input
-            type="text"
+            type="email"
             placeholder="Enter your email address"
-            {...register("email")}
-            className={
-              errors.email ? "border-red-500 focus-visible:ring-red-500" : ""
-            }
+            value={email}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              if (error) setError(""); // Бичиж эхлэхэд алдааг арилгана
+            }}
+            className={error ? "border-red-500 focus-visible:ring-red-500" : ""}
           />
-          <FieldError message={errors.email?.message} />
+          <FieldError message={error} />
         </div>
 
         <Button
           type="button"
-          onClick={onNext}
-          disabled={!isFilled}
+          onClick={handleNextStep}
+          disabled={!isValidEmail}
           className={`w-full transition-colors ${
-            isFilled
-              ? "bg-black text-white hover:bg-gray-800"
+            isValidEmail
+              ? "bg-black text-white hover:bg-gray-800 cursor-pointer"
               : "bg-gray-200 text-gray-400 cursor-not-allowed hover:bg-gray-200"
           }`}
         >
-          Let,s Go
+          Let's Go
         </Button>
       </div>
 

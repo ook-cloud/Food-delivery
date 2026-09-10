@@ -2,55 +2,74 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { ChevronLeft, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FieldError } from "../_components/field-error";
 
-function validate(email) {
-  const errors = {};
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-  if (!email) {
-    errors.email = "Email is required";
-  } else if (!emailRegex.test(email)) {
-    errors.email = "Invalid email. Use a format like example@email.com";
-  }
-  return errors;
-}
+const loginSchema = z.object({
+  email: z
+    .string()
+    .trim()
+    .min(1, { message: "Email is required" })
+    .email({ message: "Invalid email. Use a format like example@email.com" }),
+  password: z.string().min(1, { message: "Password is required" }),
+});
 
 export function LoginForm() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [errors, setErrors] = useState({});
+  const [apiError, setApiError] = useState("");
+  const router = useRouter();
 
-  const handleEmailChange = (e) => {
-    const val = e.target.value;
-    setEmail(val);
-    if (errors.email) {
-      setErrors((prev) => ({ ...prev, email: undefined }));
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    resolver: zodResolver(loginSchema),
+    mode: "onChange",
+    defaultValues: { email: "", password: "" },
+  });
+
+  const email = watch("email") || "";
+  const password = watch("password") || "";
+  const isFilled =
+    email.trim().length > 0 && password.length > 0 && !errors.email;
+
+  const onSubmit = async (data) => {
+    setApiError("");
+    try {
+      const response = await fetch("http://localhost:5000/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        setApiError(result.message || "Login failed");
+        return;
+      }
+
+      localStorage.setItem("token", result.token);
+      localStorage.setItem("user", JSON.stringify(result.user));
+
+      router.push("/");
+    } catch (err) {
+      setApiError("Server error. Please check your connection.");
     }
   };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const validationErrors = validate(email);
-
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
-
-    console.log("Login submitted:", { email, password });
-  };
-
-  const isFilled = email.trim().length > 0 && !errors.email;
 
   return (
     <div className="mx-auto w-full max-w-sm space-y-6">
       <div>
-        <Link href="/">
+        <Link href="/signup">
           <Button variant="outline" size="icon" className="h-9 w-9">
             <ChevronLeft className="h-4 w-4" />
           </Button>
@@ -64,57 +83,65 @@ export function LoginForm() {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div className="space-y-3">
           <div>
             <Input
               type="text"
               placeholder="Enter your email address"
-              value={email}
-              onChange={handleEmailChange}
+              {...register("email")}
               className={
                 errors.email ? "border-red-500 focus-visible:ring-red-500" : ""
               }
             />
-            <FieldError message={errors.email} />
+            <FieldError message={errors.email?.message} />
           </div>
 
-          <div className="relative">
-            <Input
-              type={showPassword ? "text" : "password"}
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-            >
-              {showPassword ? (
-                <EyeOff className="h-4 w-4" />
-              ) : (
-                <Eye className="h-4 w-4" />
-              )}
-            </button>
+          <div>
+            <div className="relative">
+              <Input
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
+                {...register("password")}
+                className={
+                  errors.password
+                    ? "border-red-500 focus-visible:ring-red-500"
+                    : ""
+                }
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              >
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
+              </button>
+            </div>
+            <FieldError message={errors.password?.message} />
           </div>
+
+          <FieldError message={apiError} />
         </div>
 
         <Button
           type="submit"
-          disabled={!isFilled}
+          disabled={!isFilled || isSubmitting}
           className={`w-full transition-colors ${
             isFilled
               ? "bg-black text-white hover:bg-gray-800"
               : "bg-gray-200 text-gray-400 cursor-not-allowed hover:bg-gray-200"
           }`}
         >
-          Lets Go
+          {isSubmitting ? "Logging in..." : "Let's Go"}
         </Button>
       </form>
 
       <p className="text-center text-sm text-gray-500">
-        Dont have an account?{" "}
+        Don&apos;t have an account?{" "}
         <Link
           href="/signup"
           className="text-blue-600 font-medium hover:underline"

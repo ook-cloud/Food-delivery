@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronLeft, Eye, EyeOff } from "lucide-react";
+import { useWatch } from "react-hook-form";
+import { ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,22 +14,33 @@ export function StepTwo({
   errors,
   onBack,
   onSubmit,
-  watch,
+  control, // page.jsx-ээс control ирэх ёстой
   isSubmitting,
 }) {
   const [showPassword, setShowPassword] = useState(false);
 
-  const password = watch("password") || "";
-  const confirmPassword = watch("confirmPassword") || "";
-  const isFilled = password.length >= 8 && confirmPassword.length > 0;
+  // useWatch ашиглан бичих бүрд шууд шинэчлэгдэнэ
+  const password = useWatch({ control, name: "password", defaultValue: "" });
+  const confirmPassword = useWatch({
+    control,
+    name: "confirmPassword",
+    defaultValue: "",
+  });
+
+  // Нууц үг 8+ тэмдэгттэй, хоорондоо таарч байвал товч идэвхжинэ
+  const isValid =
+    password.length >= 8 &&
+    confirmPassword.length >= 8 &&
+    password === confirmPassword;
 
   return (
     <div className="mx-auto w-full max-w-sm space-y-6">
       <div>
         <Button
+          type="button"
           variant="outline"
           size="icon"
-          className="h-9 w-9"
+          className="h-9 w-9 cursor-pointer"
           onClick={onBack}
         >
           <ChevronLeft className="h-4 w-4" />
@@ -40,13 +52,13 @@ export function StepTwo({
           Create a strong password
         </h1>
         <p className="text-sm text-gray-500">
-          Must be at least 8 characters long with a special character.
+          Create a strong password with letters, numbers.
         </p>
       </div>
 
       <form onSubmit={onSubmit} className="space-y-4">
         <div className="space-y-3">
-          <div className="relative">
+          <div>
             <Input
               type={showPassword ? "text" : "password"}
               placeholder="Password"
@@ -57,20 +69,9 @@ export function StepTwo({
                   : ""
               }
             />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-            >
-              {showPassword ? (
-                <EyeOff className="h-4 w-4" />
-              ) : (
-                <Eye className="h-4 w-4" />
-              )}
-            </button>
           </div>
 
-          <div className="relative">
+          <div>
             <Input
               type={showPassword ? "text" : "password"}
               placeholder="Confirm password"
@@ -107,10 +108,10 @@ export function StepTwo({
 
         <Button
           type="submit"
-          disabled={!isFilled || isSubmitting}
+          disabled={!isValid || isSubmitting}
           className={`w-full transition-colors ${
-            isFilled
-              ? "bg-black text-white hover:bg-gray-800"
+            isValid
+              ? "bg-black text-white hover:bg-gray-800 cursor-pointer"
               : "bg-gray-200 text-gray-400 cursor-not-allowed hover:bg-gray-200"
           }`}
         >

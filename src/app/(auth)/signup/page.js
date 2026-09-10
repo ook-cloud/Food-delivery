@@ -5,10 +5,10 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { server } from "@/_api/api";
 import { StepOne } from "./features/step-one";
 import { StepTwo } from "./features/step-two";
 import { StepDots } from "./components/step-dots";
-import { useAuth } from "@/providers/auth-provider";
 
 const signupSchema = z
   .object({
@@ -16,14 +16,10 @@ const signupSchema = z
       .string()
       .trim()
       .min(1, { message: "Email is required" })
-      .email({ message: "Invalid email. Use a format like example@email.com" }),
+      .email({ message: "Invalid email format" }),
     password: z
       .string()
-      .min(8, { message: "Password must be at least 8 characters" })
-      .regex(
-        /[^A-Za-z0-9]/,
-        "Password must contain at least one special character",
-      ),
+      .min(8, { message: "Password must be at least 8 characters" }),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -35,13 +31,13 @@ export default function SignupPage() {
   const [step, setStep] = useState(1);
   const [apiError, setApiError] = useState("");
   const router = useRouter();
-  const { login } = useAuth();
 
   const {
     register,
     handleSubmit,
-    trigger,
+    setValue,
     watch,
+    control,
     setError,
     formState: { errors, isSubmitting },
   } = useForm({
@@ -50,9 +46,9 @@ export default function SignupPage() {
     defaultValues: { email: "", password: "", confirmPassword: "" },
   });
 
-  const handleNext = async () => {
-    const isValid = await trigger("email");
-    if (isValid) setStep(2);
+  const handleStepOneNext = (emailValue) => {
+    setValue("email", emailValue, { shouldValidate: true });
+    setStep(2);
   };
 
   const handleBack = () => setStep(1);
@@ -60,28 +56,31 @@ export default function SignupPage() {
   const onSubmit = async (data) => {
     setApiError("");
     try {
-      const response = await fetch("http://localhost:5000/auth/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: data.email, password: data.password }),
+      const response = await server.post("/auth/signup", {
+        email: data.email,
+        password: data.password,
       });
 
-      const result = await response.json();
+      const result = response.data;
 
-      if (!response.ok) {
-        if (response.status === 409) {
-          setStep(1);
-          setError("email", { type: "manual", message: result.message });
-        } else {
-          setApiError(result.message || "Signup failed");
-        }
-        return;
-      }
+      localStorage.setItem("token", result.token);
+      localStorage.setItem("user", JSON.stringify(result.user));
 
-      login(result.token, result.user);
       router.push("/");
     } catch (err) {
-      setApiError("Server error. Please check your connection.");
+      if (err.response) {
+        if (err.response.status === 409) {
+          setStep(1);
+          setError("email", {
+            type: "manual",
+            message: err.response.data.message || "Email already registered",
+          });
+        } else {
+          setApiError(err.response.data.message || "Signup failed");
+        }
+      } else {
+        setApiError("Server error. Please check your connection.");
+      }
     }
   };
 
@@ -89,22 +88,17 @@ export default function SignupPage() {
     <div className="w-full">
       <StepDots currentStep={step} totalSteps={2} />
       {step === 1 ? (
-        <StepOne
-          register={register}
-          errors={errors}
-          onNext={handleNext}
-          watch={watch}
-        />
+        <StepOne initialEmail={watch("email")} onNext={handleStepOneNext} />
       ) : (
         <StepTwo
           register={register}
+          control={control}
           errors={{
             ...errors,
             apiError: apiError ? { message: apiError } : undefined,
           }}
           onBack={handleBack}
           onSubmit={handleSubmit(onSubmit)}
-          watch={watch}
           isSubmitting={isSubmitting}
         />
       )}
