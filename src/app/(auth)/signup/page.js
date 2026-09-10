@@ -5,9 +5,9 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { StepOne } from "./_features/step-one";
-import { StepTwo } from "./_features/step-two";
-import { StepDots } from "./_components/step-dots";
+import { StepOne } from "./features/step-one";
+import { StepTwo } from "./features/step-two";
+import { StepDots } from "./components/step-dots";
 import { useAuth } from "@/providers/auth-provider";
 
 const signupSchema = z

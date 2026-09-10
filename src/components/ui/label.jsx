@@ -2,7 +2,7 @@
 
 import * as React from "react";
 
-import { cn } from "@/lib/api";
+import { cn } from "@/lib/utils";
 
 function Label({ className, ...props }) {
   return (
