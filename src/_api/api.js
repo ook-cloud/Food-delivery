@@ -1,5 +1,3 @@
-import axios from "axios";
-
-export const server = axios.create({
-  baseURL: "http://localhost:1010",
-});
+export default function AuthLayout({ children }) {
+  return <main className="min-h-screen w-full bg-white">{children}</main>;
+}
