@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { SignupSchema } from "../features/SignupSchema";
-import { StepOne } from "./StepOne";
+import { StepOne } from "../components/StepOne";
 import { StepTwo } from "./StepTwo";
 import { server } from "@/app/_api/Api";
 import { useRouter } from "next/navigation";
