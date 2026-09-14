@@ -4,10 +4,10 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
-import { signupSchema } from "../components/signup-schema";
-import { StepOne } from "./step-one";
-import { StepTwo } from "./step-two";
-import { server } from "@/app
+import { signupSchema } from "../features/signup-schema";
+import { StepOne } from "./StepOne";
+import { StepTwo } from "./StepTwo";
+import { server } from "@/app/_api/api";
 import { useRouter } from "next/navigation";
 
 export function SignupForm({ step, setStep }) {

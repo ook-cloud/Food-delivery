@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { loginSchema } from "../_features/login-schema";
+import { loginSchema } from "../Features/login-schema";
 
 export function LoginForm() {
   const {
