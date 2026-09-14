@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import Image from "next/image";
-import { SignupForm } from "./components/SignUpForm.js";
+import { SignupForm } from "./features/signupfrom";
 
 export default function SignupPage() {
   const [step, setStep] = useState(1);
