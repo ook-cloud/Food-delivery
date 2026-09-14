@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import Image from "next/image";
 
-import { LoginForm } from "./Components/LoginForm";
+import { LoginForm } from "./_components/LoginForm";
 
 export default function LoginPage() {
   return (

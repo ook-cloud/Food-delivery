@@ -4,10 +4,10 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
-import { signupSchema } from "../features/signup-schema";
+import { SignupSchema } from "../features/SignupSchema";
 import { StepOne } from "./StepOne";
 import { StepTwo } from "./StepTwo";
-import { server } from "@/app/_api/api";
+import { server } from "@/app/_api/Api";
 import { useRouter } from "next/navigation";
 
 export function SignupForm({ step, setStep }) {
@@ -19,7 +19,7 @@ export function SignupForm({ step, setStep }) {
     handleSubmit,
     formState: { errors },
   } = useForm({
-    resolver: zodResolver(signupSchema),
+    resolver: zodResolver(SignupSchema),
   });
 
   const handleNext = async () => {

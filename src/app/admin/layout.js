@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useAuth } from "@/providers/auth-provider";
+import { useAuth } from "@/providers/AuthProvider";
 
 export default function AdminLayout({ children }) {
   const { user } = useAuth();

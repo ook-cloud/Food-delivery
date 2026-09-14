@@ -1,4 +1,4 @@
-import { adminDishes } from "@/lib/types";
+import { adminDishes } from "@/lib/Types";
 
 export default function AdminDishesPage() {
   return (

@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useCart } from "@/providers/cart-provider";
-import { useAuth } from "@/providers/auth-provider";
+import { useCart } from "@/providers/CartProvider";
+import { useAuth } from "@/providers/AuthProvider";
 
 export default function Header() {
   const { itemCount } = useCart();

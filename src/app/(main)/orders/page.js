@@ -1,5 +1,5 @@
-import { demoOrders } from "@/lib/types";
-import { StatusBadge } from "@/components/shared/status-badge";
+import { demoOrders } from "@/lib/Types";
+import { StatusBadge } from "@/components/shared/StatusBadge";
 
 export default function OrdersPage() {
   return (

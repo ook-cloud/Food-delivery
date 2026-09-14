@@ -1,6 +1,6 @@
 "use client";
 
-import { CartProvider } from "@/providers/cart-provider";
+import { CartProvider } from "@/providers/CartProvider";
 import Header from "@/app/(main)/_components/header";
 import CartSheet from "@/app/(main)/_features/cart-sheet";
 

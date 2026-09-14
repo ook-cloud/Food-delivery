@@ -2,8 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { demoMenu, demoCategories } from "@/lib/types";
-import { useCart } from "@/providers/cart-provider";
+import { demoMenu, demoCategories } from "@/lib/Types";
+import { useCart } from "@/providers/CartProvider";
 
 export default function HomePage() {
   const { addItem } = useCart();

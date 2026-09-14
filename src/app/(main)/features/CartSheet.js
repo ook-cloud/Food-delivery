@@ -1,6 +1,6 @@
 "use client";
 
-import { useCart } from "@/providers/cart-provider";
+import { useCart } from "@/providers/CartProvider";
 import { Button } from "@/components/ui/button";
 
 export default function CartSheet() {
