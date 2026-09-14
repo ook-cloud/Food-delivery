@@ -1,45 +1,45 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useMemo, useState } from "react";
 
-const AuthContext = createContext(undefined);
+const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null);
+  const [user, setUser] = useState({
+    id: "guest",
+    name: "Guest user",
+    email: "guest@example.com",
+    role: "customer",
+  });
 
-  useEffect(() => {
-    const savedToken = localStorage.getItem("token");
-    const savedUser = localStorage.getItem("user");
-    if (savedToken && savedUser) {
-      setToken(savedToken);
-      setUser(JSON.parse(savedUser));
-    }
-  }, []);
+  const login = (nextUser) => setUser(nextUser);
+  const logout = () =>
+    setUser({
+      id: "guest",
+      name: "Guest user",
+      email: "guest@example.com",
+      role: "customer",
+    });
 
-  const login = (newToken, newUser) => {
-    localStorage.setItem("token", newToken);
-    localStorage.setItem("user", JSON.stringify(newUser));
-    setToken(newToken);
-    setUser(newUser);
-  };
-
-  const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    setToken(null);
-    setUser(null);
-  };
-
-  return (
-    <AuthContext.Provider value={{ user, token, login, logout }}>
-      {children}
-    </AuthContext.Provider>
+  const value = useMemo(
+    () => ({
+      user,
+      login,
+      logout,
+      isAuthenticated: Boolean(user && user.id !== "guest"),
+    }),
+    [user],
   );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-export const useAuth = () => {
+export function useAuth() {
   const context = useContext(AuthContext);
-  if (!context) throw new Error("useAuth must be used within AuthProvider");
+
+  if (!context) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+
   return context;
-};
+}
