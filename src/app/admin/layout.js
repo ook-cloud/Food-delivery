@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
+import { LayoutDashboard } from "lucide-react";
 import { useAuth } from "@/providers/AuthProvider";
 
 export default function AdminLayout({ children }) {
@@ -30,12 +32,21 @@ export default function AdminLayout({ children }) {
 
   return (
     <div className="flex min-h-screen bg-slate-100 text-slate-900">
-      <aside className="w-72 border-r border-slate-200 bg-cyan-800 text-white">
+      <aside className="w-72 border-r border-black bg-mist-100 text-white">
         <div className="mb-8">
-          <p className="text-xs uppercase tracking-[0.25em] text-slate-400">
-            Admin
-          </p>
-          <h1 className="mt-2 text-2xl font-bold">FoodFlow</h1>
+          <div className="pt-8 mb-10 flex items-center justify-center gap-30 px-10">
+            <Image
+              src="/pictures/Logo.png"
+              alt="NomNom Logo"
+              width={165}
+              height={44}
+              className="rounded-full object-cover"
+            />
+          </div>
+          <div className="flex items-center justify-center  gap-2">
+            <LayoutDashboard className="w-6 h-6" />
+            <h1 className="text-black ">Food menu</h1>
+          </div>
         </div>
 
         <nav className="space-y-2">
@@ -47,7 +58,7 @@ export default function AdminLayout({ children }) {
             <Link
               key={label}
               href={href}
-              className="flex items-center rounded-xl px-4 py-3 text-sm font-medium text-slate-200 transition hover:bg-slate-800 hover:text-white"
+              className="flex items-center rounded-xl px-4 py-3 text-sm font-medium text-black transition hover:bg-slate-800 hover:text-white"
             >
               {label}
             </Link>
