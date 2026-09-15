@@ -1,12 +1,34 @@
 "use client";
 
-import Link from "next/link";
-import Image from "next/image";
-import { LayoutDashboard } from "lucide-react";
-import { useAuth } from "@/providers/AuthProvider";
+import { useAuth } from "@/providers/auth-provider";
+import { AdminSidebar } from "./_components/admin-sidebar";
+import { AdminTopbar } from "./_components/admin-topbar";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function AdminLayout({ children }) {
-  const { user } = useAuth();
+  const { user, ready } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (ready && user?.role !== "admin") {
+      router.replace("/login");
+    }
+  }, [ready, user, router]);
+
+  if (!ready) return null; 
+  if (user?.role !== "admin") return null;
+
+  return (
+    <div className="flex min-h-svh bg-[#F4F4F5]">
+      <AdminSidebar />
+      <div className="flex flex-1 flex-col">
+        <AdminTopbar />
+        <main className="flex-1 px-4 pb-12 sm:px-6">{children}</main>
+      </div>
+    </div>
+  );
+}
 
   // if (user.role !== "admin") {
   //   return (
@@ -29,43 +51,3 @@ export default function AdminLayout({ children }) {
   //     </main>
   //   );
   // }
-
-  return (
-    <div className="flex min-h-screen bg-slate-100 text-slate-900">
-      <aside className="w-72 border-r border-black bg-mist-100 text-white">
-        <div className="mb-8">
-          <div className="pt-8 mb-10 flex items-center justify-center gap-30 px-10">
-            <Image
-              src="/pictures/Logo.png"
-              alt="NomNom Logo"
-              width={165}
-              height={44}
-              className="rounded-full object-cover"
-            />
-          </div>
-          <div className="flex items-center justify-center  gap-2">
-            <LayoutDashboard className="w-6 h-6 text-black" />
-            <h1 className="text-black ">Food menu</h1>
-          </div>
-          <nav className="space-y-2">
-            {[
-              ["Food menu", "/admin/food-menu"],
-              ["Orders", "/admin/orders"],
-              ["Settings", "/admin/settings"],
-            ].map(([label, href]) => (
-              <Link
-                key={label}
-                href={href}
-                className="flex items-center rounded-xl px-4 py-3 text-sm font-medium text-black transition hover:bg-slate-800 hover:text-white"
-              >
-                {label}
-              </Link>
-            ))}
-          </nav>
-        </div>
-      </aside>
-
-      <main className="flex-1 p-6">{children}</main>
-    </div>
-  );
-}
