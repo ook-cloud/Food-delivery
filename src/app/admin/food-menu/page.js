@@ -1,33 +1,52 @@
-export default function AdminCategoriesPage() {
-  return (
-    <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-      <p className="text-sm uppercase tracking-[0.2em] text-orange-500">
-        Categories
-      </p>
-      <h1 className="mt-2 text-3xl font-bold text-slate-900">
-        Menu categories
-      </h1>
+import { CategoryChips } from "./_features/category-chips";
+import { DishGrid } from "./_features/dish-grid";
 
-      <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {["Pizza", "Burgers", "Bowls", "Drinks", "Desserts"].map((category) => (
-          <div
-            key={category}
-            className="rounded-2xl border border-slate-200 p-4"
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-lg font-semibold text-slate-800">
-                {category}
-              </span>
-              <button
-                type="button"
-                className="text-sm font-medium text-orange-500"
-              >
-                Edit
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:1000";
+
+async function getCategories() {
+  const res = await fetch(`${API_URL}/food-category/get`, {
+    cache: "no-store",
+  });
+  const data = await res.json();
+  return data.foodCategory ?? [];
+}
+async function getFoods() {
+  const res = await fetch(`${API_URL}/food/get`, {
+    cache: "no-store",
+  });
+  const data = await res.json();
+  return data.foods ?? [];
+}
+
+export default async function FoodMenuPage() {
+  const [categories, foods] = await Promise.all([getCategories(), getFoods()]);
+
+  const sections = categories.map((c) => ({
+    category: c.categoryName,
+    categoryId: c._id,
+    dishes: foods
+      .filter((f) => f.category?._id === c._id)
+      .map((f) => ({
+        id: f._id,
+        name: f.foodName,
+        price: f.price,
+        ingredients: Array.isArray(f.ingredients)
+          ? f.ingredients.join(", ")
+          : f.ingredients,
+        image: f.image,
+      })),
+  }));
+
+  const chips = categories.map((c) => ({
+    id: c._id,
+    label: c.categoryName,
+    count: foods.filter((f) => f.category?._id === c._id).length,
+  }));
+
+  return (
+    <div className="mx-auto flex max-w-6xl flex-col gap-6">
+      <CategoryChips chips={chips} totalCount={foods.length} />
+      <DishGrid sections={sections} categories={categories} />
     </div>
   );
 }
