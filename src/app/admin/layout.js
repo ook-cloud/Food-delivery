@@ -44,26 +44,25 @@ export default function AdminLayout({ children }) {
             />
           </div>
           <div className="flex items-center justify-center  gap-2">
-            <LayoutDashboard className="w-6 h-6" />
+            <LayoutDashboard className="w-6 h-6 text-black" />
             <h1 className="text-black ">Food menu</h1>
           </div>
+          <nav className="space-y-2">
+            {[
+              ["Food menu", "/admin/food-menu"],
+              ["Orders", "/admin/orders"],
+              ["Settings", "/admin/settings"],
+            ].map(([label, href]) => (
+              <Link
+                key={label}
+                href={href}
+                className="flex items-center rounded-xl px-4 py-3 text-sm font-medium text-black transition hover:bg-slate-800 hover:text-white"
+              >
+                {label}
+              </Link>
+            ))}
+          </nav>
         </div>
-
-        <nav className="space-y-2">
-          {[
-            ["Orders", "/admin/orders"],
-            ["Dishes", "/admin/dishes"],
-            ["Categories", "/admin/categories"],
-          ].map(([label, href]) => (
-            <Link
-              key={label}
-              href={href}
-              className="flex items-center rounded-xl px-4 py-3 text-sm font-medium text-black transition hover:bg-slate-800 hover:text-white"
-            >
-              {label}
-            </Link>
-          ))}
-        </nav>
       </aside>
 
       <main className="flex-1 p-6">{children}</main>
