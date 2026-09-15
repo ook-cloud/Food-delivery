@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { SignupSchema } from "../features/SignupSchema";
-import { StepOne } from "../components/StepOne";
+import { StepOne } from "./StepOne";
 import { StepTwo } from "./StepTwo";
 import { server } from "@/app/_api/Api";
 import { useRouter } from "next/navigation";
@@ -31,7 +31,7 @@ export function SignupForm({ step, setStep }) {
 
   const onSubmit = async (data) => {
     try {
-      const response = await server.post("/auth/sign-up", {
+      const response = await server.post("/auth/sig-nup", {
         email: data.email,
         password: data.password,
       });
