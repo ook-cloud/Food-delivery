@@ -1,5 +1,7 @@
-import { redirect } from "next/navigation";
-
-export default function AdminPage() {
-  redirect("/admin/orders"); // эсвэл /admin/food-menu
+export default function OrdersPage() {
+  return (
+    <div>
+      <h1 className="text-2xl font-bold">Orders List</h1>
+    </div>
+  );
 }

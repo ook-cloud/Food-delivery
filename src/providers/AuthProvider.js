@@ -12,7 +12,13 @@ export function AuthProvider({ children }) {
     role: "customer",
   });
 
-  const login = (nextUser) => setUser(nextUser);
+  // ready state-ийг true гэж эхлүүлнэ
+  const [ready, setReady] = useState(true);
+
+  const login = (nextUser) => {
+    setUser(nextUser);
+  };
+
   const logout = () =>
     setUser({
       id: "guest",
@@ -24,11 +30,12 @@ export function AuthProvider({ children }) {
   const value = useMemo(
     () => ({
       user,
+      ready, // AdminLayout-д хэрэгтэй ready утгыг дамжуулав
       login,
       logout,
       isAuthenticated: Boolean(user && user.id !== "guest"),
     }),
-    [user],
+    [user, ready],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

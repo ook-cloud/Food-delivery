@@ -2,11 +2,17 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/providers/AuthProvider";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { LoginSchema } from "../_features/LoginSchema";
+import { useEffect } from "react";
 
 export function LoginForm() {
+  const router = useRouter();
+  const { login, user } = useAuth();
+
   const {
     register,
     handleSubmit,
@@ -15,8 +21,20 @@ export function LoginForm() {
     resolver: zodResolver(LoginSchema),
   });
 
+  // State шинэчлэгдэж user.role === "admin" болмогц замаа шилжүүлнэ
+  useEffect(() => {
+    if (user?.role === "admin") {
+      router.push("/admin");
+    }
+  }, [user, router]);
+
   const onSubmit = (data) => {
-    console.log("Login Data:", data);
+    login({
+      id: "admin-1",
+      name: "Admin User",
+      email: data.email,
+      role: "admin",
+    });
   };
 
   return (
