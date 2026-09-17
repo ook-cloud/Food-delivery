@@ -10,7 +10,7 @@ const navItems = [
   { label: "Settings", href: "/admin/settings", icon: Settings },
 ];
 
-export function AdminSidebar() {
+export function Sidebar() {
   const pathname = usePathname();
 
   return (

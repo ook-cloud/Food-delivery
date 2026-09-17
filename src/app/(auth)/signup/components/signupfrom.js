@@ -13,13 +13,17 @@ import { useRouter } from "next/navigation";
 export function SignupForm({ step, setStep }) {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
+  const [apiError, setApiError] = useState("");
+
   const {
     register,
     trigger,
     handleSubmit,
-    formState: { errors },
+    setError,
+    formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(SignupSchema),
+    mode: "onChange",
   });
 
   const handleNext = async () => {
@@ -30,19 +34,36 @@ export function SignupForm({ step, setStep }) {
   };
 
   const onSubmit = async (data) => {
+    setApiError("");
     try {
-      const response = await server.post("/auth/sig-nup", {
+      const response = await server.post("/auth/signup", {
         email: data.email,
         password: data.password,
       });
-      console.log(response);
-      console.log(data.email);
 
-      localStorage.setItem("user", JSON.stringify(response.data.user));
-
-      router.push("/admin/categories");
+      if (response.status === 201) {
+        // Бүртгүүлсний дараа Login хуудас руу шилжинэ
+        router.push("/login");
+      }
     } catch (err) {
       console.error(err);
+      if (err.response) {
+        const status = err.response.status;
+        const msg = err.response.data?.message;
+
+        if (status === 409) {
+          // Хэрэв имэйл бүртгэлтэй байвал Step 1 руу буцааж алдааг харуулна
+          setStep(1);
+          setError("email", {
+            type: "manual",
+            message: msg || "User already exists",
+          });
+        } else {
+          setApiError(msg || "Signup failed");
+        }
+      } else {
+        setApiError("Server error. Please check your connection.");
+      }
     }
   };
 
@@ -63,16 +84,17 @@ export function SignupForm({ step, setStep }) {
         <Button
           type="button"
           onClick={handleNext}
-          className="w-full py-6 text-base font-semibold rounded-xl bg-[#18181B] text-white hover:bg-slate-700 transition-colors"
+          className="w-full py-6 text-base font-semibold rounded-xl bg-[#18181B] text-white hover:bg-slate-700 transition-colors cursor-pointer"
         >
           Next
         </Button>
       ) : (
         <Button
           type="submit"
-          className="w-full py-6 text-base font-semibold rounded-xl bg-[#18181B] text-white hover:bg-slate-700 transition-colors"
+          disabled={isSubmitting}
+          className="w-full py-6 text-base font-semibold rounded-xl bg-[#18181B] text-white hover:bg-slate-700 transition-colors cursor-pointer"
         >
-          Sign Up
+          {isSubmitting ? "Creating account..." : "Sign Up"}
         </Button>
       )}
     </form>

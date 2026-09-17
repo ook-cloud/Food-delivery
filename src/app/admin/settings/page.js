@@ -1,4 +1,4 @@
-export default function AdminSettingsPage() {
+export default function SettingsPage() {
   return (
     <div className="mx-auto max-w-6xl">
       <section className="rounded-2xl bg-white p-6">

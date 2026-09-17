@@ -1,6 +1,6 @@
-import { useAuth } from "@/providers/auth-provider";
+import { useAuth } from "@/providers/AuthProvider";
 
-export function AdminTopbar() {
+export function Topbar() {
   const { logout } = useAuth();
   return (
     <header className="flex h-16 items-center justify-end px-4 sm:px-6">

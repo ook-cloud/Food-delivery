@@ -1,7 +1,7 @@
 import { CategoryChips } from "./_features/category-chips";
 import { DishGrid } from "./_features/dish-grid";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:1000";
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:1010";
 
 async function getCategories() {
   const res = await fetch(`${API_URL}/food-category/get`, {
