@@ -2,12 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Truck, Settings, LayoutDashboard } from "lucide-react";
+import { Truck, LayoutDashboard } from "lucide-react";
 
 const navItems = [
   { label: "Food menu", href: "/admin/food-menu", icon: LayoutDashboard },
   { label: "Orders", href: "/admin/orders", icon: Truck },
-  { label: "Settings", href: "/admin/settings", icon: Settings },
 ];
 
 export function Sidebar() {
