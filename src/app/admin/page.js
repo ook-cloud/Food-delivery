@@ -2,5 +2,5 @@ import { redirect } from "next/navigation";
 
 export default function AdminPage() {
   // admin хавтас руу ороход шууд /admin/orders руу шилжүүлнэ
-  redirect("/admin/orders");
+  return <div>helo</div>;
 }
