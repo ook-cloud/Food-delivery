@@ -13,45 +13,46 @@ import {
 } from "@/components/ui/dialog";
 
 export default function Dishes({
+  categories = [],
   dishes = [],
   setDishes,
-  activeCategory,
-  activeCategoryName = "Dishes",
+  activeCategory = "all",
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [editingDishId, setEditingDishId] = useState(null);
+  const [targetCategoryId, setTargetCategoryId] = useState(null);
 
   // Формын state-үүд
   const [foodName, setFoodName] = useState("");
   const [foodPrice, setFoodPrice] = useState("");
   const [ingredients, setIngredients] = useState("");
-  const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
 
-  const handleOpenAddModal = () => {
+  // Шинэ хоол нэмэх модал нээх
+  const handleOpenAddModal = (catId) => {
     setEditingDishId(null);
+    setTargetCategoryId(catId);
     setFoodName("");
     setFoodPrice("");
     setIngredients("");
-    setImage(null);
     setImagePreview("");
     setIsOpen(true);
   };
 
+  // Хоол засах модал нээх
   const handleOpenEditModal = (dish) => {
     setEditingDishId(dish.id);
+    setTargetCategoryId(dish.categoryId);
     setFoodName(dish.title);
     setFoodPrice(dish.price);
     setIngredients(dish.description);
     setImagePreview(dish.image);
-    setImage(null);
     setIsOpen(true);
   };
 
   const handleImageChange = (e) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      setImage(file);
       setImagePreview(URL.createObjectURL(file));
     }
   };
@@ -69,7 +70,6 @@ export default function Dishes({
       "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&q=80";
 
     if (editingDishId) {
-      // Хоол засах
       setDishes((prev) =>
         prev.map((dish) =>
           dish.id === editingDishId
@@ -84,10 +84,9 @@ export default function Dishes({
         ),
       );
     } else {
-      // Шинэ хоол нэмэх (Тухайн идэвхтэй категорийн ID-г хадгална)
       const newDish = {
         id: Date.now(),
-        categoryId: activeCategory,
+        categoryId: targetCategoryId,
         title: foodName,
         price: formattedPrice,
         description: ingredients,
@@ -96,81 +95,100 @@ export default function Dishes({
       setDishes((prev) => [newDish, ...prev]);
     }
 
-    setFoodName("");
-    setFoodPrice("");
-    setIngredients("");
-    setImage(null);
-    setImagePreview("");
     setIsOpen(false);
   };
 
+  // Хэрэв "All Dishes" сонгогдсон бол бүх категориийг цувуулж харуулна, эсвэл зөвхөн тухайн сонгосон категорийг харуулна
+  const displayCategories =
+    activeCategory === "all"
+      ? categories
+      : categories.filter((c) => c.id === activeCategory);
+
   return (
-    <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-5">
-      <h2 className="text-base font-bold text-gray-900">
-        {activeCategoryName} ({dishes.length})
-      </h2>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-        {/* А. Шинэ хоол нэмэх карт */}
-        <div
-          onClick={handleOpenAddModal}
-          className="border-2 border-dashed border-red-200 rounded-2xl p-6 flex flex-col items-center justify-center min-h-[220px] bg-red-50/10 hover:bg-red-50/30 transition-colors cursor-pointer group"
-        >
-          <div className="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center mb-3 shadow-md group-hover:scale-105 transition-transform">
-            <Plus className="w-5 h-5" />
-          </div>
-          <p className="text-xs font-semibold text-gray-800 text-center leading-tight">
-            Add new Dish to
-            <br />
-            {activeCategoryName}
-          </p>
+    <div className="space-y-8">
+      {displayCategories.length === 0 ? (
+        <div className="bg-white p-8 rounded-2xl border border-gray-100 text-center text-gray-400 text-sm">
+          Категори байхгүй байна. Дээд талын (+) товчийг дарж шинэ категори
+          нэмнэ үү.
         </div>
+      ) : (
+        displayCategories.map((cat) => {
+          const catDishes = dishes.filter((d) => d.categoryId === cat.id);
 
-        {/* Б. Хоолнуудын жагсаалт */}
-        {dishes.map((dish) => (
-          <div
-            key={dish.id}
-            className="border border-gray-100 rounded-2xl p-3 flex flex-col space-y-3 hover:shadow-md transition-shadow bg-white"
-          >
-            <div className="relative w-full h-32 rounded-xl overflow-hidden bg-gray-100">
-              <img
-                src={dish.image}
-                alt={dish.title}
-                className="w-full h-full object-cover"
-              />
-              <button
-                onClick={() => handleOpenEditModal(dish)}
-                className="absolute bottom-2 right-2 w-7 h-7 bg-white rounded-full flex items-center justify-center text-red-500 shadow-md hover:bg-red-50 transition-colors"
-              >
-                <Pencil className="w-3.5 h-3.5" />
-              </button>
-            </div>
+          return (
+            <div
+              key={cat.id}
+              id={`category-section-${cat.id}`}
+              className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-5"
+            >
+              {/* Категорийн Нэр ба Тоо */}
+              <h2 className="text-base font-bold text-gray-900">
+                {cat.name} ({catDishes.length})
+              </h2>
 
-            <div className="space-y-1">
-              <div className="flex justify-between items-start gap-2">
-                <h3 className="text-xs font-bold text-red-400 leading-tight">
-                  {dish.title}
-                </h3>
-                <span className="text-xs font-semibold text-gray-800">
-                  {dish.price}
-                </span>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                {/* 1. Шинэ хоол нэмэх карт (Категори тус бүрт байна) */}
+                <div
+                  onClick={() => handleOpenAddModal(cat.id)}
+                  className="border-2 border-dashed border-red-200 rounded-2xl p-6 flex flex-col items-center justify-center min-h-[220px] bg-red-50/10 hover:bg-red-50/30 transition-colors cursor-pointer group"
+                >
+                  <div className="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center mb-3 shadow-md group-hover:scale-105 transition-transform">
+                    <Plus className="w-5 h-5" />
+                  </div>
+                  <p className="text-xs font-semibold text-gray-800 text-center leading-tight">
+                    Add new Dish to
+                    <br />
+                    {cat.name}
+                  </p>
+                </div>
+
+                {/* 2. Тухайн категорийн хоолнууд */}
+                {catDishes.map((dish) => (
+                  <div
+                    key={dish.id}
+                    className="border border-gray-100 rounded-2xl p-3 flex flex-col space-y-3 hover:shadow-md transition-shadow bg-white"
+                  >
+                    <div className="relative w-full h-32 rounded-xl overflow-hidden bg-gray-100">
+                      <img
+                        src={dish.image}
+                        alt={dish.title}
+                        className="w-full h-full object-cover"
+                      />
+                      <button
+                        onClick={() => handleOpenEditModal(dish)}
+                        className="absolute bottom-2 right-2 w-7 h-7 bg-white rounded-full flex items-center justify-center text-red-500 shadow-md hover:bg-red-50 transition-colors"
+                      >
+                        <Pencil className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+
+                    <div className="space-y-1">
+                      <div className="flex justify-between items-start gap-2">
+                        <h3 className="text-xs font-bold text-red-500 leading-tight">
+                          {dish.title}
+                        </h3>
+                        <span className="text-xs font-semibold text-gray-800">
+                          {dish.price}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-gray-400 leading-relaxed line-clamp-2">
+                        {dish.description}
+                      </p>
+                    </div>
+                  </div>
+                ))}
               </div>
-              <p className="text-[11px] text-gray-400 leading-relaxed line-clamp-2">
-                {dish.description}
-              </p>
             </div>
-          </div>
-        ))}
-      </div>
+          );
+        })
+      )}
 
-      {/* Add/Edit Dish Модал */}
+      {/* Add / Edit Dish Dialog */}
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="sm:max-w-[480px] bg-white p-6 rounded-3xl border-none shadow-2xl [&>button]:top-6 [&>button]:right-6 [&>button]:w-8 [&>button]:h-8 [&>button]:rounded-full [&>button]:bg-gray-100 [&>button]:flex [&>button]:items-center [&>button]:justify-center [&>button]:opacity-100 [&>button]:hover:bg-gray-200">
           <DialogHeader className="p-0 border-b-0 mb-4">
             <DialogTitle className="text-xl font-bold text-gray-900 text-left">
-              {editingDishId
-                ? "Edit Dish"
-                : `Add new Dish to ${activeCategoryName}`}
+              {editingDishId ? "Edit Dish" : "Add new Dish"}
             </DialogTitle>
           </DialogHeader>
 

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Category from "./Category";
-import Dishes from "./components/Dishes";
+import Dishes from "./Category/Dishes";
 
 export default function FoodMenuPage() {
   const [categories, setCategories] = useState([]);
@@ -10,7 +10,7 @@ export default function FoodMenuPage() {
   const [activeCategory, setActiveCategory] = useState("all");
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // 1. Хуудас анх ачааллахад localStorage-аас хадгалсан өгөгдлийг унших
+  // LocalStorage унших
   useEffect(() => {
     const savedCategories = localStorage.getItem("food_categories");
     const savedDishes = localStorage.getItem("food_dishes");
@@ -19,57 +19,38 @@ export default function FoodMenuPage() {
       try {
         setCategories(JSON.parse(savedCategories));
       } catch (e) {
-        console.error("Failed to parse categories", e);
+        console.error(e);
       }
     }
-
     if (savedDishes) {
       try {
         setDishes(JSON.parse(savedDishes));
       } catch (e) {
-        console.error("Failed to parse dishes", e);
+        console.error(e);
       }
     }
-
-    setIsLoaded(true); // Уншиж дууссаныг тэмдэглэх
+    setIsLoaded(true);
   }, []);
 
-  // 2. Categories өөрчлөгдөх бүрт localStorage руу хадгалах
+  // LocalStorage хадгалах
   useEffect(() => {
     if (isLoaded) {
       localStorage.setItem("food_categories", JSON.stringify(categories));
     }
   }, [categories, isLoaded]);
 
-  // 3. Dishes өөрчлөгдөх бүрт localStorage руу хадгалах
   useEffect(() => {
     if (isLoaded) {
       localStorage.setItem("food_dishes", JSON.stringify(dishes));
     }
   }, [dishes, isLoaded]);
 
-  // Идэвхтэй байгаа категорийг олох
-  const currentCategoryObj = categories.find((c) => c.id === activeCategory);
-  const activeCategoryName =
-    activeCategory === "all"
-      ? "All Dishes"
-      : currentCategoryObj
-        ? currentCategoryObj.name
-        : "Dishes";
-
-  // Категори тус бүрийн хоолны тоог бодох
+  // Категори тус бүрийн тоог бодож дамжуулах
   const categoriesWithCount = categories.map((cat) => ({
     ...cat,
     count: dishes.filter((dish) => dish.categoryId === cat.id).length,
   }));
 
-  // Сонгосон категориор хоолнуудыг шүүх
-  const filteredDishes =
-    activeCategory === "all"
-      ? dishes
-      : dishes.filter((dish) => dish.categoryId === activeCategory);
-
-  // Өгөгдөл уншигдаж дуустал хоосон харагдахаас сэргийлэх
   if (!isLoaded) {
     return (
       <div className="w-full bg-[#f4f4f6] min-h-screen p-8">Loading...</div>
@@ -78,7 +59,7 @@ export default function FoodMenuPage() {
 
   return (
     <div className="w-full bg-[#f4f4f6] min-h-screen p-8 space-y-6">
-      {/* Категорийн хэсэг */}
+      {/* 1. Категори сонгох дээд хэсэг */}
       <Category
         categories={categoriesWithCount}
         setCategories={setCategories}
@@ -87,12 +68,12 @@ export default function FoodMenuPage() {
         totalDishesCount={dishes.length}
       />
 
-      {/* Хоолны жагсаалтын хэсэг */}
+      {/* 2. Категори тус бүрээр цуврах хоолнуудын хэсэг */}
       <Dishes
-        dishes={filteredDishes}
+        categories={categoriesWithCount}
+        dishes={dishes}
         setDishes={setDishes}
         activeCategory={activeCategory}
-        activeCategoryName={activeCategoryName}
       />
     </div>
   );
