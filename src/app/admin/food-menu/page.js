@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Category from "./Category";
-import Dishes from "./Category/Dishes";
+import Dishes from "./components/Dishes";
 
 export default function FoodMenuPage() {
   const [categories, setCategories] = useState([]);
