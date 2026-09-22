@@ -12,12 +12,12 @@ import {
 } from "@/components/ui/dialog";
 
 export default function Category({
+  categories = [],
+  setCategories,
   activeCategory,
   setActiveCategory,
   totalDishesCount = 0,
 }) {
-  // Категориудыг дотроо state-ээр удирдана
-  const [categories, setCategories] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const [categoryName, setCategoryName] = useState("");
 
@@ -26,9 +26,8 @@ export default function Category({
     if (!categoryName.trim()) return;
 
     const newCat = {
-      id: categoryName.toLowerCase().replace(/\s+/g, "-") + "-" + Date.now(),
+      id: "cat-" + Date.now(),
       name: categoryName.trim(),
-      count: 0,
     };
 
     setCategories((prev) => [...prev, newCat]);
@@ -45,11 +44,11 @@ export default function Category({
       <h2 className="text-base font-bold text-gray-900">Dishes category</h2>
 
       <div className="flex flex-wrap items-center gap-2.5">
-        {/* All Dishes карт */}
+        {/* All Dishes (Нийт хоолны тоо) */}
         <button
           onClick={() => setActiveCategory && setActiveCategory("all")}
           className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-medium border transition-all ${
-            activeCategory === "all" || !activeCategory
+            activeCategory === "all"
               ? "border-red-400 text-red-500 bg-white"
               : "border-gray-200 text-gray-700 bg-white hover:border-gray-300"
           }`}
@@ -90,7 +89,7 @@ export default function Category({
         </button>
       </div>
 
-      {/* "Add new category" Модал */}
+      {/* Add new category Модал */}
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="sm:max-w-[460px] bg-white p-8 rounded-3xl border-none shadow-2xl [&>button]:top-6 [&>button]:right-6 [&>button]:w-9 [&>button]:h-9 [&>button]:rounded-full [&>button]:bg-gray-100 [&>button]:flex [&>button]:items-center [&>button]:justify-center [&>button]:opacity-100 [&>button]:hover:bg-gray-200 border-0">
           <DialogHeader className="p-0 border-b-0 mb-6">

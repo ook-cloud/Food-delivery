@@ -12,9 +12,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-export default function Dishes({ activeCategoryName = "Appetizers" }) {
-  // Анхнаасаа хоосон жагсаалттай эхэлнэ
-  const [dishes, setDishes] = useState([]);
+export default function Dishes({
+  dishes = [],
+  setDishes,
+  activeCategory,
+  activeCategoryName = "Dishes",
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const [editingDishId, setEditingDishId] = useState(null);
 
@@ -57,7 +60,6 @@ export default function Dishes({ activeCategoryName = "Appetizers" }) {
     e.preventDefault();
     if (!foodName || !foodPrice) return;
 
-    // Үнэ дээр $ тэмдэггүй байвал автоматаар засах
     const formattedPrice = foodPrice.startsWith("$")
       ? foodPrice
       : `$${foodPrice}`;
@@ -67,7 +69,7 @@ export default function Dishes({ activeCategoryName = "Appetizers" }) {
       "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&q=80";
 
     if (editingDishId) {
-      // Байгаа хоолыг засах
+      // Хоол засах
       setDishes((prev) =>
         prev.map((dish) =>
           dish.id === editingDishId
@@ -82,9 +84,10 @@ export default function Dishes({ activeCategoryName = "Appetizers" }) {
         ),
       );
     } else {
-      // Шинээр хоол нэмэх
+      // Шинэ хоол нэмэх (Тухайн идэвхтэй категорийн ID-г хадгална)
       const newDish = {
         id: Date.now(),
+        categoryId: activeCategory,
         title: foodName,
         price: formattedPrice,
         description: ingredients,
@@ -93,7 +96,6 @@ export default function Dishes({ activeCategoryName = "Appetizers" }) {
       setDishes((prev) => [newDish, ...prev]);
     }
 
-    // Форм цэвэрлэх & модал хаах
     setFoodName("");
     setFoodPrice("");
     setIngredients("");
@@ -124,7 +126,7 @@ export default function Dishes({ activeCategoryName = "Appetizers" }) {
           </p>
         </div>
 
-        {/* Б. Цонхоор нэмсэн хоолнуудын жагсаалт */}
+        {/* Б. Хоолнуудын жагсаалт */}
         {dishes.map((dish) => (
           <div
             key={dish.id}
@@ -161,7 +163,7 @@ export default function Dishes({ activeCategoryName = "Appetizers" }) {
         ))}
       </div>
 
-      {/* "Add/Edit Dish" Модал цонх */}
+      {/* Add/Edit Dish Модал */}
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="sm:max-w-[480px] bg-white p-6 rounded-3xl border-none shadow-2xl [&>button]:top-6 [&>button]:right-6 [&>button]:w-8 [&>button]:h-8 [&>button]:rounded-full [&>button]:bg-gray-100 [&>button]:flex [&>button]:items-center [&>button]:justify-center [&>button]:opacity-100 [&>button]:hover:bg-gray-200">
           <DialogHeader className="p-0 border-b-0 mb-4">
@@ -173,7 +175,6 @@ export default function Dishes({ activeCategoryName = "Appetizers" }) {
           </DialogHeader>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Food name & Food price */}
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5 text-left">
                 <label className="text-xs font-semibold text-gray-900">
@@ -202,7 +203,6 @@ export default function Dishes({ activeCategoryName = "Appetizers" }) {
               </div>
             </div>
 
-            {/* Ingredients */}
             <div className="space-y-1.5 text-left">
               <label className="text-xs font-semibold text-gray-900">
                 Ingredients
@@ -215,7 +215,6 @@ export default function Dishes({ activeCategoryName = "Appetizers" }) {
               />
             </div>
 
-            {/* Food image */}
             <div className="space-y-1.5 text-left">
               <label className="text-xs font-semibold text-gray-900">
                 Food image
@@ -251,7 +250,6 @@ export default function Dishes({ activeCategoryName = "Appetizers" }) {
               </div>
             </div>
 
-            {/* Submit Button */}
             <div className="flex justify-end pt-2">
               <Button
                 type="submit"
