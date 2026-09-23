@@ -1,8 +1,8 @@
 "use client";
-import Dishes from "./dishes/page";
+import Dishes from "./food-menu/page";
 import { useState } from "react";
 import Orders from "./orders/page";
-import { Sidebar } from "./_components/sidebar";
+import { Sidebar } from "./components/Sidebar";
 export default function Admin() {
   const [state, setState] = useState(1);
   const first = state === 1;

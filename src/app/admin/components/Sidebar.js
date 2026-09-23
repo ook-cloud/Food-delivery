@@ -1,15 +1,20 @@
 "use client";
 import { LayoutDashboard } from "lucide-react";
 import { Truck } from "lucide-react";
-import { NomnomLogo } from "@/app/_icons/nomnomLogo";
+import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/Utils";
 export const Sidebar = ({ setState, state }) => {
   return (
     <div className="h-full w-51.25 flex flex-col gap-10 py-9 px-5 bg-[#FFFFFF]">
       <div className="w-41.25 h-11 flex gap-2">
-        <NomnomLogo />
+        <Image
+          src="/pictures/NomNomLogo.png"
+          alt="logo"
+          className="object-contain"
+          fill
+        />
         <div className="flex flex-col w-20.25 h-11">
           <p className="font-inter font-semibold text-[18px] text-[#09090B] leading-7">
             NomNom
