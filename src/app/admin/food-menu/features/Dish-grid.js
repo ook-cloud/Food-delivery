@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { server } from "@/app/_api/api";
+import { server } from "@/app/_api/Api";
 import { Plus } from "lucide-react";
 import { X } from "lucide-react";
 import { CldUploadWidget, CldImage } from "next-cloudinary";

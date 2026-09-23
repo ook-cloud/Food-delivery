@@ -4,7 +4,7 @@ import { Truck } from "lucide-react";
 import { NomnomLogo } from "@/app/_icons/nomnomLogo";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/Utils";
 export const Sidebar = ({ setState, state }) => {
   return (
     <div className="h-full w-51.25 flex flex-col gap-10 py-9 px-5 bg-[#FFFFFF]">

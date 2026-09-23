@@ -1,5 +1,5 @@
 "use client";
-import { server } from "@/app/_api/api";
+import { server } from "@/app/_api/Api";
 import { useEffect, useState } from "react";
 import { Plus, X } from "lucide-react";
 import { toast } from "@/components/ui/toast";
