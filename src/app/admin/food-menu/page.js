@@ -1,5 +1,5 @@
-import { CategorySideBar } from "./features/Category-sidebar";
-import { DishGrid } from "./features/Dish-grid";
+import { CategorySideBar } from "./_features/category-sidebar";
+import { DishGrid } from "./_features/dish-grid";
 
 export default function Dishes() {
   return (

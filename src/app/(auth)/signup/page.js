@@ -1,67 +1,109 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
-import { ChevronLeft } from "lucide-react";
-import Image from "next/image";
-import { SignupForm } from "./components/SignupFrom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { StepOne } from "./_features/step-one";
+import { StepTwo } from "./_features/step-two";
+import { useRouter } from "next/navigation";
+import { server } from "../../_api/api.js";
+const Schema = z
+  .object({
+    email: z
+      .string()
+      .min(1, { message: "Email is required." })
+      .pipe(z.email({ message: "Invalid email address." })),
+    password: z
+      .string()
+      .min(8, { message: "Password must be at least 8 characters long" })
+      .regex(/[a-z]/, {
+        message: "Password must contain at least one lowercase letter",
+      })
+      .regex(/[A-Z]/, {
+        message: "Password must contain at least one uppercase letter",
+      })
+      .regex(/[0-9]/, { message: "Password must contain at least one number" })
+      .regex(/[^a-zA-Z0-9]/, {
+        message: "Password must contain at least one special character",
+      }),
+    confirmPassword: z
+      .string()
+      .min(1, { message: "Please confirm your password" }),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
 
-export default function SignupPage() {
+export default function SignUp() {
   const [step, setStep] = useState(1);
+  const router = useRouter();
+  const {
+    register,
+    handleSubmit,
+    trigger,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(Schema),
+    mode: "onTouched",
+  });
 
+  const handleNextStepEmail = async () => {
+    const isValid = await trigger(["email"]);
+    if (isValid) {
+      setStep(2);
+    }
+  };
+  const handleNextStepPassword = async () => {
+    const isValid = await trigger(["password"]);
+    if (isValid) {
+      router.push("/admin");
+    }
+  };
+
+  const processForm = async (data) => {
+    try {
+      const response = await server.post("/auth/signup", {
+        email: data.email,
+        password: data.password,
+      });
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("user", JSON.stringify(response.data.user));
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  const toLogin = () => {
+    router.push("/login");
+  };
   return (
-    <div className="flex h-screen w-full bg-white">
-      <div className="w-full lg:w-1/2 flex flex-col justify-center px-8 lg:px-24">
-        <div className="max-w-md w-full mx-auto">
-          {step === 1 ? (
-            <Link
-              href="/"
-              className="mb-10 flex items-center justify-center w-10 h-10 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
-            >
-              <ChevronLeft className="w-5 h-5 text-slate-700" />
-            </Link>
-          ) : (
-            <button
-              onClick={() => setStep(1)}
-              type="button"
-              className="mb-10 flex items-center justify-center w-10 h-10 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
-            >
-              <ChevronLeft className="w-5 h-5 text-slate-700" />
-            </button>
-          )}
-
-          <h1 className="text-4xl font-extrabold text-slate-900 mb-3">
-            Sign up
-          </h1>
-          <p className="text-slate-500 mb-10 text-lg">
-            Create an account to enjoy your favourite dishes.
-          </p>
-
-          <SignupForm step={step} setStep={setStep} />
-
-          <div className="mt-8 text-center">
-            <p className="text-slate-600 font-medium">
-              Already have an account?{" "}
-              <Link href="/login" className="text-blue-700 hover:underline">
-                Log in
-              </Link>
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div className="hidden lg:block w-1/2 h-full p-6">
-        <div className="w-full h-full rounded-3xl overflow-hidden relative bg-slate-100">
-          <Image
-            src="/pictures/delivery.png"
-            alt="Delivery person"
-            className="object-cover"
-            fill
-            sizes="50vw"
-            priority
+    <div className="w-full flex items-center justify-center">
+      <form
+        onSubmit={handleSubmit(processForm)}
+        className="w-full max-w-md"
+        noValidate
+      >
+        {step === 1 && (
+          <StepOne
+            register={register}
+            errors={errors}
+            onNext={handleNextStepEmail}
+            functionNext={handleNextStepEmail}
+            functionLogin={toLogin}
           />
-        </div>
-      </div>
+        )}
+
+        {step === 2 && (
+          <StepTwo
+            register={register}
+            errors={errors}
+            onBack={() => setStep(1)}
+            functionNext={handleNextStepPassword}
+          />
+        )}
+      </form>
     </div>
   );
 }
