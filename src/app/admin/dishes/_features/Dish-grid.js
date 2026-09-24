@@ -11,7 +11,7 @@ export const DishGrid = () => {
   const [data, setData] = useState([]);
   const [category, setCategory] = useState([]);
   const [selectedCat, setSelectedCat] = useState(null);
-  const [editingDish, setEditingDish] = useState(null); // Track dish being updated
+  const [editingDish, setEditingDish] = useState(null);
   const [plus, setPlus] = useState(false);
   const [foodName, setFoodName] = useState("");
   const [price, setPrice] = useState("");
