@@ -1,5 +1,5 @@
 "use client";
-import Dishes from "./dishes/page";
+import Dishes from "./food-menu/page";
 import { useState } from "react";
 import Orders from "./orders/page";
 import { Sidebar } from "./_components/sidebar";

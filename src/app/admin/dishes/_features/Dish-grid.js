@@ -3,8 +3,6 @@ import { useEffect, useState } from "react";
 import { server } from "@/app/_api/api";
 import { Plus } from "lucide-react";
 import { X } from "lucide-react";
-import { CldUploadWidget, CldImage } from "next-cloudinary";
-import Image from "next/image";
 import { Pencil } from "lucide-react";
 
 export const DishGrid = () => {

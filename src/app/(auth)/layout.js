@@ -9,8 +9,8 @@ export default function SubLayout({ children }) {
 
       <div className="relative hidden w-full  lg:block">
         <Image
-          src="/forms-img.png"
-          alt="forms-img"
+          src="/pictures/delivery.png"
+          alt="delivery"
           width={856}
           height={904}
           className="rounded-4"

@@ -4,10 +4,10 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { StepOne } from "./_features/step-one";
-import { StepTwo } from "./_features/step-two";
+import { StepOne } from "./_features/StepOne";
+import { StepTwo } from "./_features/StepTwo";
 import { useRouter } from "next/navigation";
-import { server } from "../../_api/api.js";
+import { server } from "../../_api/api";
 const Schema = z
   .object({
     email: z
