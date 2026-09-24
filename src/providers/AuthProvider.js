@@ -12,7 +12,6 @@ export function AuthProvider({ children }) {
     role: "customer",
   });
 
-  // ready state-ийг true гэж эхлүүлнэ
   const [ready, setReady] = useState(true);
 
   const login = (nextUser) => {
@@ -30,7 +29,7 @@ export function AuthProvider({ children }) {
   const value = useMemo(
     () => ({
       user,
-      ready, // AdminLayout-д хэрэгтэй ready утгыг дамжуулав
+      ready,
       login,
       logout,
       isAuthenticated: Boolean(user && user.id !== "guest"),
