@@ -1,44 +1,31 @@
 "use client";
 
-import { createContext, useContext, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
 const AuthContext = createContext(null);
 
-export function AuthProvider({ children }) {
-  const [user, setUser] = useState({
-    id: "guest",
-    name: "Guest user",
-    email: "guest@example.com",
-    role: "customer",
-  });
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
 
-  const [ready, setReady] = useState(true);
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("user");
+      if (stored) setuser(JSON.parse(stored));
+    } catch (err) {
+      localStorage.removeItem("user");
+    } finally {
+      setloading(false);
+    }
+  }, []);
 
-  const login = (nextUser) => {
-    setUser(nextUser);
-  };
-
-  const logout = () =>
-    setUser({
-      id: "guest",
-      name: "Guest user",
-      email: "guest@example.com",
-      role: "customer",
-    });
-
-  const value = useMemo(
-    () => ({
-      user,
-      ready,
-      login,
-      logout,
-      isAuthenticated: Boolean(user && user.id !== "guest"),
-    }),
-    [user, ready],
+  return (
+    <AuthContext.Provider
+      value={{ user, Login, SignUp, LogOut, loading, submitting, error }}
+    >
+      {children}
+    </AuthContext.Provider>
   );
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-}
+};
 
 export function useAuth() {
   const context = useContext(AuthContext);
