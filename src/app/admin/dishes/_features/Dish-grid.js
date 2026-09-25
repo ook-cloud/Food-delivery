@@ -1,9 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { server } from "@/app/_api/api";
-import { Plus } from "lucide-react";
-import { X } from "lucide-react";
-import { Pencil } from "lucide-react";
+import { Plus, X, Pencil } from "lucide-react";
 
 export const DishGrid = () => {
   const [preview, setPreview] = useState("");
@@ -19,9 +17,18 @@ export const DishGrid = () => {
   const [ingredients, setIngredients] = useState("");
   const [uploading, setUploading] = useState(false);
 
+  // Authorization Header авах туслах функц
+  const getAuthHeaders = () => {
+    const token =
+      typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  };
+
   const foodCategoryGet = async () => {
     try {
-      const response = await server.get("/foodCategory/get");
+      const response = await server.get("/foodCategory/get", {
+        headers: getAuthHeaders(),
+      });
       setCategory(response.data.category);
     } catch (err) {
       console.error("Failed to load categories:", err);
@@ -30,15 +37,9 @@ export const DishGrid = () => {
     }
   };
 
-  const takeFoodName = (e) => {
-    const result = e.target.value;
-    setFoodName(result);
-  };
-
-  const takePrice = (e) => {
-    const result = e.target.value;
-    setPrice(result);
-  };
+  const takeFoodName = (e) => setFoodName(e.target.value);
+  const takePrice = (e) => setPrice(e.target.value);
+  const takeIngredients = (e) => setIngredients(e.target.value);
 
   const handleUploadImage = async (e) => {
     const file = e.target.files?.[0];
@@ -71,7 +72,6 @@ export const DishGrid = () => {
 
       if (data.secure_url) {
         setImage(data.secure_url);
-        console.log("Cloudinary URL:", data.secure_url);
       }
     } catch (err) {
       console.error("Cloudinary upload failed:", err);
@@ -80,25 +80,26 @@ export const DishGrid = () => {
     }
   };
 
-  const takeIngredients = (e) => {
-    const result = e.target.value;
-    setIngredients(result);
-  };
-
   const dishesPost = async () => {
     if (!foodName || !price || !selectedCat) {
-      alert("Please fill in Food Name, Price, and select an image!");
+      alert("Please fill in Food Name, Price, and select a category!");
       return;
     }
 
     try {
-      await server.post("/dishes/post", {
-        foodName: foodName,
-        price: Number(price),
-        image: image,
-        ingredients: ingredients,
-        category: selectedCat._id,
-      });
+      await server.post(
+        "/dishes/post",
+        {
+          foodName: foodName,
+          price: Number(price),
+          image: image,
+          ingredients: ingredients,
+          category: selectedCat._id,
+        },
+        {
+          headers: getAuthHeaders(), // Токен дамжуулах
+        },
+      );
       await foodCategoryGet();
       await dishesGet();
       plusCloser();
@@ -112,13 +113,19 @@ export const DishGrid = () => {
     if (!editingDish?._id) return;
 
     try {
-      await server.put(`/dishes/${editingDish._id}`, {
-        foodName: foodName,
-        price: Number(price),
-        image: image,
-        ingredients: ingredients,
-        category: selectedCat?._id || editingDish.category,
-      });
+      await server.put(
+        `/dishes/${editingDish._id}`,
+        {
+          foodName: foodName,
+          price: Number(price),
+          image: image,
+          ingredients: ingredients,
+          category: selectedCat?._id || editingDish.category,
+        },
+        {
+          headers: getAuthHeaders(), // Токен дамжуулах
+        },
+      );
       await dishesGet();
       plusCloser();
     } catch (err) {
@@ -132,7 +139,9 @@ export const DishGrid = () => {
     if (!isConfirmed) return;
 
     try {
-      await server.delete(`/dishes/${id}`);
+      await server.delete(`/dishes/${id}`, {
+        headers: getAuthHeaders(), // Токен дамжуулах
+      });
       await dishesGet();
     } catch (err) {
       console.error("Delete Error Status:", err.response?.status);
@@ -142,7 +151,9 @@ export const DishGrid = () => {
 
   const dishesGet = async () => {
     try {
-      const response = await server.get("/dishes/get");
+      const response = await server.get("/dishes/get", {
+        headers: getAuthHeaders(),
+      });
       setData(response.data.dishes);
     } catch (err) {
       console.error("Failed to load dishes:", err);
@@ -230,7 +241,7 @@ export const DishGrid = () => {
                     <img
                       src={dish.image}
                       alt={dish.foodName}
-                      className="w-full h-32.25 rounded-xl object-cover "
+                      className="w-full h-32.25 rounded-xl object-cover"
                     />
 
                     <div
@@ -309,7 +320,7 @@ export const DishGrid = () => {
               />
             </div>
           </div>
-          <div className="w-103 h-28 flex flex-col gap-2 ">
+          <div className="w-103 h-28 flex flex-col gap-2">
             <p className="font-inter font-medium text-[#09090B] text-[14px] leading-3.5">
               Ingredients
             </p>

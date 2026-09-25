@@ -6,8 +6,13 @@ export const server = axios.create({
 });
 
 server.interceptors.request.use((config) => {
-  const token =
-    typeof window !== "undefined" ? localStorage.getItem("token") : null;
-  config.headers.Authorization = token ? `Bearer ${token}` : null;
+  if (typeof window !== "undefined") {
+    const token = localStorage.getItem("token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    } else {
+      delete config.headers.Authorization; // Токен байхгүй бол header-ийг цэвэрлэнэ
+    }
+  }
   return config;
 });
