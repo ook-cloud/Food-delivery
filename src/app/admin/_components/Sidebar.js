@@ -2,8 +2,6 @@
 import { LayoutDashboard } from "lucide-react";
 import { Truck } from "lucide-react";
 import { NomnomLogo } from "@/app/_icons/nomnomLogo";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 export const Sidebar = ({ setState, state }) => {
   return (

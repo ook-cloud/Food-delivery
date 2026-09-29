@@ -17,7 +17,7 @@ export const DishGrid = () => {
   const [ingredients, setIngredients] = useState("");
   const [uploading, setUploading] = useState(false);
 
-  // Authorization Header авах туслах функц
+  // LocalStorage-оос Bearer токен авах туслах функц
   const getAuthHeaders = () => {
     const token =
       typeof window !== "undefined" ? localStorage.getItem("token") : null;
@@ -29,7 +29,7 @@ export const DishGrid = () => {
       const response = await server.get("/foodCategory/get", {
         headers: getAuthHeaders(),
       });
-      setCategory(response.data.category);
+      setCategory(response.data.category || []);
     } catch (err) {
       console.error("Failed to load categories:", err);
     } finally {
@@ -41,6 +41,7 @@ export const DishGrid = () => {
   const takePrice = (e) => setPrice(e.target.value);
   const takeIngredients = (e) => setIngredients(e.target.value);
 
+  // Cloudinary руу зураг хуулах
   const handleUploadImage = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -50,14 +51,11 @@ export const DishGrid = () => {
 
     const formData = new FormData();
     formData.append("file", file);
-    formData.append(
-      "upload_preset",
-      process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET,
-    );
+    formData.append("upload_preset", "foods_upload");
 
     try {
       const res = await fetch(
-        `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
+        "https://api.cloudinary.com/v1_1/erven9dw/image/upload",
         {
           method: "POST",
           body: formData,
@@ -65,24 +63,30 @@ export const DishGrid = () => {
       );
 
       const data = await res.json();
-      if (!res.ok) {
-        console.error("Cloudinary Error Message:", data?.error?.message);
-        return;
-      }
 
       if (data.secure_url) {
         setImage(data.secure_url);
+      } else {
+        console.error("Cloudinary error response:", data);
+        alert("Зураг хуулахад алдаа гарлаа: " + (data?.error?.message || ""));
       }
     } catch (err) {
       console.error("Cloudinary upload failed:", err);
+      alert("Зураг хуулахад сүлжээний алдаа гарлаа.");
     } finally {
       setUploading(false);
     }
   };
 
+  // Хоол шинээр нэмэх
   const dishesPost = async () => {
     if (!foodName || !price || !selectedCat) {
       alert("Please fill in Food Name, Price, and select a category!");
+      return;
+    }
+
+    if (uploading) {
+      alert("Зураг хуулж дуустал түр хүлээнэ үү!");
       return;
     }
 
@@ -97,7 +101,7 @@ export const DishGrid = () => {
           category: selectedCat._id,
         },
         {
-          headers: getAuthHeaders(), // Токен дамжуулах
+          headers: getAuthHeaders(),
         },
       );
       await foodCategoryGet();
@@ -106,11 +110,18 @@ export const DishGrid = () => {
     } catch (err) {
       console.error("Axios Status:", err.response?.status);
       console.error("Axios Error Body:", err.response?.data);
+      alert(err.response?.data?.message || "Хоол нэмэхэд алдаа гарлаа (403)");
     }
   };
 
+  // Хоолын мэдээлэл засах
   const dishesPut = async () => {
     if (!editingDish?._id) return;
+
+    if (uploading) {
+      alert("Зураг хуулж дуустал түр хүлээнэ үү!");
+      return;
+    }
 
     try {
       await server.put(
@@ -123,7 +134,7 @@ export const DishGrid = () => {
           category: selectedCat?._id || editingDish.category,
         },
         {
-          headers: getAuthHeaders(), // Токен дамжуулах
+          headers: getAuthHeaders(),
         },
       );
       await dishesGet();
@@ -134,13 +145,14 @@ export const DishGrid = () => {
     }
   };
 
+  // Хоол устгах
   const dishDelete = async (id) => {
     const isConfirmed = confirm("Are you sure you want to delete this dish?");
     if (!isConfirmed) return;
 
     try {
       await server.delete(`/dishes/${id}`, {
-        headers: getAuthHeaders(), // Токен дамжуулах
+        headers: getAuthHeaders(),
       });
       await dishesGet();
     } catch (err) {
@@ -154,7 +166,7 @@ export const DishGrid = () => {
       const response = await server.get("/dishes/get", {
         headers: getAuthHeaders(),
       });
-      setData(response.data.dishes);
+      setData(response.data.dishes || []);
     } catch (err) {
       console.error("Failed to load dishes:", err);
     }
