@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { Minus, PlusIcon, X, Plus, Check } from "lucide-react";
 import { server } from "@/app/_api/api";
+import bgImage from "../../../../public/pictures/background.png";
 
 export const FoodGrid = () => {
   const [data, setData] = useState([]);
@@ -74,9 +75,13 @@ export const FoodGrid = () => {
 
   return (
     <div
-      className="w-full min-h-screen bg-cover bg-center bg-fixed py-8 px-4 flex flex-col gap-13.5 relative items-center"
+      className="w-full min-h-screen py-12 px-4 flex flex-col gap-13.5 relative items-center"
       style={{
-        backgroundImage: `linear-gradient(to bottom, rgba(255, 255, 255, 0.85), rgba(249, 249, 251, 0.92)), url('/pictures/background.jpeg')`,
+        backgroundImage: `linear-gradient(to bottom, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.4)), url(${bgImage.src})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        backgroundAttachment: "fixed",
       }}
     >
       {notif && (
