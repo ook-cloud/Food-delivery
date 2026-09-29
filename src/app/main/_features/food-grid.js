@@ -38,7 +38,17 @@ export const FoodGrid = () => {
 
   const getAddToCart = (dish) => {
     const existingDishes = JSON.parse(localStorage.getItem("CartDishes")) || [];
-    existingDishes.push(dish);
+
+    const existingIndex = existingDishes.findIndex(
+      (item) => item._id === dish._id,
+    );
+
+    if (existingIndex > -1) {
+      existingDishes[existingIndex].number += dish.number;
+    } else {
+      existingDishes.push(dish);
+    }
+
     localStorage.setItem("CartDishes", JSON.stringify(existingDishes));
   };
 
@@ -63,7 +73,12 @@ export const FoodGrid = () => {
   }
 
   return (
-    <div className="flex flex-col gap-13.5 relative">
+    <div
+      className="w-full min-h-screen bg-cover bg-center bg-fixed py-8 px-4 flex flex-col gap-13.5 relative items-center"
+      style={{
+        backgroundImage: `linear-gradient(to bottom, rgba(255, 255, 255, 0.85), rgba(249, 249, 251, 0.92)), url('/pictures/background.jpeg')`,
+      }}
+    >
       {notif && (
         <div className="w-89.25 h-12 flex rounded-lg shadow-md border border-solid border-[#E4E4E7] bg-[#18181B] gap-2 items-center justify-center fixed top-6 left-1/2 -translate-x-1/2 z-50">
           <Check className="w-4 h-4 text-[#FAFAFA]" />
@@ -75,7 +90,7 @@ export const FoodGrid = () => {
 
       {category.map((cat) => (
         <div key={cat._id} className="w-316 flex flex-col gap-9">
-          <p className="font-inter font-semibold text-[#FFFFFF] text-[30px] leading-9">
+          <p className="font-inter font-semibold text-[#09090B] text-[30px] leading-9">
             {cat.categoryName}
           </p>
 
@@ -85,7 +100,7 @@ export const FoodGrid = () => {
               .map((dish) => (
                 <div
                   key={dish._id}
-                  className="w-67.5 h-60.25 rounded-[20px] p-4 flex flex-col justify-between bg-[#FFFFFF] relative"
+                  className="w-67.5 h-60.25 rounded-[20px] p-4 flex flex-col justify-between bg-[#FFFFFF] relative shadow-sm hover:shadow-md transition-shadow"
                 >
                   <img
                     onClick={() => setSelectedDish(dish)}
@@ -110,9 +125,9 @@ export const FoodGrid = () => {
                     onClick={(e) => {
                       e.preventDefault();
                       notification();
-                      getAddToCart(dish);
+                      getAddToCart({ ...dish, number: 1 });
                     }}
-                    className="w-9 h-9 rounded-full bg-white flex items-center justify-center cursor-pointer absolute bottom-26 right-6 shadow-md"
+                    className="w-9 h-9 rounded-full bg-white flex items-center justify-center cursor-pointer absolute bottom-26 right-6 shadow-md hover:bg-zinc-100 transition-colors"
                   >
                     <Plus className="w-4 h-4 text-[#EF4444]" />
                   </div>
@@ -141,8 +156,11 @@ export const FoodGrid = () => {
                   </p>
                 </div>
                 <div
-                  onClick={() => setSelectedDish(null)}
-                  className="w-10 h-10 rounded-full flex justify-center items-center bg-[#F4F4F5] cursor-pointer"
+                  onClick={() => {
+                    setSelectedDish(null);
+                    setNumber(1);
+                  }}
+                  className="w-10 h-10 rounded-full flex justify-center items-center bg-[#F4F4F5] cursor-pointer hover:bg-zinc-200 transition-colors"
                 >
                   <X className="w-4 h-4 text-[#18181B]" />
                 </div>
@@ -154,22 +172,22 @@ export const FoodGrid = () => {
                       Total price
                     </p>
                     <p className="font-inter font-semibold text-[#09090B] text-[24px] leading-6">
-                      ${selectedDish.price * number}
+                      ${(selectedDish.price * number).toFixed(2)}
                     </p>
                   </div>
                   <div className="flex items-center gap-3">
                     <div
                       onClick={numberMinus}
-                      className="w-11 h-11 rounded-full flex justify-center items-center border-[#E4E4E7] border border-solid cursor-pointer"
+                      className="w-11 h-11 rounded-full flex justify-center items-center border-[#E4E4E7] border border-solid cursor-pointer select-none"
                     >
                       <Minus className="w-4 h-4 text-[#18181B]" />
                     </div>
-                    <p className="font-inter font-semibold text-[#09090B] text-[18px] leading-7">
+                    <p className="font-inter font-semibold text-[#09090B] text-[18px] leading-7 select-none">
                       {number}
                     </p>
                     <div
                       onClick={numberPlus}
-                      className="w-11 h-11 rounded-full flex justify-center items-center border-[#E4E4E7] border border-solid cursor-pointer"
+                      className="w-11 h-11 rounded-full flex justify-center items-center border-[#E4E4E7] border border-solid cursor-pointer select-none"
                     >
                       <PlusIcon className="w-4 h-4 text-[#18181B]" />
                     </div>
@@ -177,12 +195,12 @@ export const FoodGrid = () => {
                 </div>
                 <div
                   onClick={() => {
-                    getAddToCart({ ...selectedDish, count: number });
+                    getAddToCart({ ...selectedDish, number: number });
                     notification();
                     setSelectedDish(null);
                     setNumber(1);
                   }}
-                  className="w-full h-11 rounded-full bg-[#18181B] flex justify-center items-center font-inter font-medium text-[#FAFAFA] text-[14px] leading-5 cursor-pointer"
+                  className="w-full h-11 rounded-full bg-[#18181B] flex justify-center items-center font-inter font-medium text-[#FAFAFA] text-[14px] leading-5 cursor-pointer hover:bg-black transition-colors"
                 >
                   Add to cart
                 </div>
