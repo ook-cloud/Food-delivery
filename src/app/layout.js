@@ -2,6 +2,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "@/components/ui/toast";
 import "./globals.css";
 import { AuthProvider } from "../providers/AuthProvider";
+import { CartProvider } from "@/providers/CartProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,12 +25,14 @@ export default function RootLayout({ children }) {
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <AuthProvider>
-        <body className="min-h-full flex flex-col justify-center">
-          {children}
-          <Toaster />
-        </body>
-      </AuthProvider>
+      <CartProvider>
+        <AuthProvider>
+          <body className="min-h-full flex flex-col justify-center">
+            {children}
+            <Toaster />
+          </body>
+        </AuthProvider>
+      </CartProvider>
     </html>
   );
 }

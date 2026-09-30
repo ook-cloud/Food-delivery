@@ -9,6 +9,7 @@ import { ShoppingCart, X, Minus, PlusIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { server } from "@/app/_api/api";
+import { useCart } from "@/providers/CartProvider";
 
 export const Header = () => {
   const router = useRouter();
@@ -20,25 +21,32 @@ export const Header = () => {
   const [localData, setLocalData] = useState([]);
   const [cartOrOrder, setCartOrOrder] = useState(1);
 
+  const { order, setOrder } = useCart();
+
   const handleCart = () => setSectionCart(true);
   const handleCartCloser = () => setSectionCart(false);
   const adressHandler = () => setAdress(true);
   const adressHandlerCloser = () => setAdress(false);
 
-  const getLocalDishes = () => {
-    try {
-      const result = JSON.parse(localStorage.getItem("CartDishes")) || [];
-      setLocalData(result);
-    } catch {
-      setLocalData([]);
+  // 1. Context дээрх `order` өөрчлөгдөх эсвэл Анх ачаалагдах үед localData-г шинэчлэх
+  useEffect(() => {
+    if (order && Array.isArray(order)) {
+      setLocalData(order);
+    } else {
+      try {
+        const result = JSON.parse(localStorage.getItem("CartDishes")) || [];
+        setLocalData(result);
+      } catch {
+        setLocalData([]);
+      }
     }
-  };
+  }, [order]);
 
   useEffect(() => {
-    getLocalDishes();
     const savedLocation = localStorage.getItem("Location") || "";
     setAdressSave(savedLocation);
   }, []);
+
   const adressSubmit = () => {
     localStorage.setItem("Location", adressSave);
     setAdress(false);
@@ -58,6 +66,7 @@ export const Header = () => {
 
     setLocalData(updated);
     localStorage.setItem("CartDishes", JSON.stringify(updated));
+    setOrder(updated);
   };
 
   const removeDish = (dishId) => {
@@ -66,6 +75,7 @@ export const Header = () => {
     );
     setLocalData(updated);
     localStorage.setItem("CartDishes", JSON.stringify(updated));
+    setOrder(updated);
   };
 
   const subtotal = (localData || []).reduce(
@@ -74,6 +84,13 @@ export const Header = () => {
   );
   const shipping = subtotal > 0 ? 0.99 : 0;
   const total = subtotal + shipping;
+
+  // 2. Сагсанд байгаа НИЙТ хоолны тоог (ширхэгийг) олох
+  const totalCartCount = (localData || []).reduce(
+    (sum, item) => sum + (Number(item.number) || 1),
+    0,
+  );
+
   const handleCheckout = async () => {
     if (localData.length === 0) return alert("Your cart is empty!");
     if (!adressSave) {
@@ -89,10 +106,19 @@ export const Header = () => {
       return;
     }
 
-    const userid = JSON.parse(userString);
+    let userId = "";
+    try {
+      const parsedUser = JSON.parse(userString);
+      userId =
+        typeof parsedUser === "object"
+          ? parsedUser._id || parsedUser.id
+          : parsedUser;
+    } catch {
+      userId = userString;
+    }
 
     const orderPayload = {
-      user: userid._id,
+      user: userId,
       totalPrice: total,
       address: adressSave,
       foodOrderItems: localData.map((item) => ({
@@ -108,6 +134,7 @@ export const Header = () => {
         alert("Order placed successfully!");
         setLocalData([]);
         localStorage.removeItem("CartDishes");
+        setOrder([]);
         setSectionCart(false);
       }
     } catch (error) {
@@ -115,6 +142,7 @@ export const Header = () => {
       alert(error.response?.data?.message || "Failed to place order.");
     }
   };
+
   return (
     <div className="w-full h-17 flex items-center justify-between py-3 px-22 bg-[#18181B]">
       <div className="w-36.5 h-11 flex gap-3">
@@ -183,14 +211,15 @@ export const Header = () => {
           />
         </div>
 
+        {/* 3. Сагсны дүрстэй хэсэг дээр totalCartCount-ийг ашиглав */}
         <div
           onClick={handleCart}
           className="w-9 h-9 flex rounded-full bg-[#F4F4F5] justify-center items-center cursor-pointer relative"
         >
           <ShopCartLogo />
-          {localData.length > 0 && (
+          {totalCartCount > 0 && (
             <span className="absolute -top-1 -right-1 bg-[#EF4444] text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
-              {localData.length}
+              {totalCartCount}
             </span>
           )}
         </div>

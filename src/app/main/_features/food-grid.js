@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { Minus, PlusIcon, X, Plus, Check } from "lucide-react";
 import { server } from "@/app/_api/api";
+import { useCart } from "@/providers/CartProvider";
 import bgImage from "../../../../public/pictures/background.png";
 
 export const FoodGrid = () => {
@@ -11,6 +12,7 @@ export const FoodGrid = () => {
   const [notif, setNotif] = useState(false);
   const [selectedDish, setSelectedDish] = useState(null);
   const [number, setNumber] = useState(1);
+  const { order, setOrder } = useCart();
 
   const notification = () => {
     setNotif(true);
@@ -18,14 +20,17 @@ export const FoodGrid = () => {
       setNotif(false);
     }, 3000);
   };
+
   const numberPlus = () => {
-    setNumber(number + 1);
+    setNumber((prev) => prev + 1);
   };
+
   const numberMinus = () => {
     if (number > 1) {
-      setNumber(number - 1);
+      setNumber((prev) => prev - 1);
     }
   };
+
   const foodCategoryGet = async () => {
     try {
       const response = await server.get("/foodCategory/get");
@@ -51,6 +56,10 @@ export const FoodGrid = () => {
     }
 
     localStorage.setItem("CartDishes", JSON.stringify(existingDishes));
+
+    if (typeof setOrder === "function") {
+      setOrder(existingDishes);
+    }
   };
 
   const dishesGet = async () => {
@@ -177,7 +186,7 @@ export const FoodGrid = () => {
                       Total price
                     </p>
                     <p className="font-inter font-semibold text-[#09090B] text-[24px] leading-6">
-                      ${(selectedDish.price * number).toFixed(2)}
+                      ${((Number(selectedDish.price) || 0) * number).toFixed(2)}
                     </p>
                   </div>
                   <div className="flex items-center gap-3">
