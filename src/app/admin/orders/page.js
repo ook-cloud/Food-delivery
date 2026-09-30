@@ -16,7 +16,7 @@ export default function Orders() {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState([]);
   const [status, setStatus] = useState("");
-  const [displayStatus, setDisplayStatus] = 1;
+  const [displayStatus, setDisplayStatus] = useState(1);
   const [date, setDate] = useState({
     from: new Date(),
     to: addDays(new Date(), 20),

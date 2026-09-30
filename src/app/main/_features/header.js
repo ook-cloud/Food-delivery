@@ -20,7 +20,6 @@ export const Header = () => {
   const [sectionCart, setSectionCart] = useState(false);
   const [localData, setLocalData] = useState([]);
   const [cartOrOrder, setCartOrOrder] = useState(1);
-
   const { order, setOrder } = useCart();
 
   const handleCart = () => setSectionCart(true);
@@ -28,7 +27,6 @@ export const Header = () => {
   const adressHandler = () => setAdress(true);
   const adressHandlerCloser = () => setAdress(false);
 
-  // 1. Context дээрх `order` өөрчлөгдөх эсвэл Анх ачаалагдах үед localData-г шинэчлэх
   useEffect(() => {
     if (order && Array.isArray(order)) {
       setLocalData(order);
@@ -42,11 +40,20 @@ export const Header = () => {
     }
   }, [order]);
 
+  const getLocalDishes = () => {
+    try {
+      const result = JSON.parse(localStorage.getItem("CartDishes")) || [];
+      setLocalData(result);
+    } catch {
+      setLocalData([]);
+    }
+  };
+
   useEffect(() => {
+    getLocalDishes();
     const savedLocation = localStorage.getItem("Location") || "";
     setAdressSave(savedLocation);
   }, []);
-
   const adressSubmit = () => {
     localStorage.setItem("Location", adressSave);
     setAdress(false);
@@ -85,7 +92,6 @@ export const Header = () => {
   const shipping = subtotal > 0 ? 0.99 : 0;
   const total = subtotal + shipping;
 
-  // 2. Сагсанд байгаа НИЙТ хоолны тоог (ширхэгийг) олох
   const totalCartCount = (localData || []).reduce(
     (sum, item) => sum + (Number(item.number) || 1),
     0,
@@ -106,27 +112,29 @@ export const Header = () => {
       return;
     }
 
-    let userId = "";
-    try {
-      const parsedUser = JSON.parse(userString);
-      userId =
-        typeof parsedUser === "object"
-          ? parsedUser._id || parsedUser.id
-          : parsedUser;
-    } catch {
-      userId = userString;
-    }
+    const userid = JSON.parse(userString);
+    //    let userId = "";
+    // try {
+    //   const parsedUser = JSON.parse(userString);
+    //   userId =
+    //     typeof parsedUser === "object"
+    //       ? parsedUser._id || parsedUser.id
+    //       : parsedUser;
+    // } catch {
+    //   userId = userString;
+    // }
 
     const orderPayload = {
-      user: userId,
+      user: userid._id,
       totalPrice: total,
       address: adressSave,
       foodOrderItems: localData.map((item) => ({
         food: item._id || item.id,
         quantity: item.number || 1,
       })),
+      status: "PENDING",
     };
-
+    console.log("orderPayload", orderPayload);
     try {
       const response = await server.post("/order/post", orderPayload);
 
@@ -142,7 +150,6 @@ export const Header = () => {
       alert(error.response?.data?.message || "Failed to place order.");
     }
   };
-
   return (
     <div className="w-full h-17 flex items-center justify-between py-3 px-22 bg-[#18181B]">
       <div className="w-36.5 h-11 flex gap-3">
@@ -211,15 +218,14 @@ export const Header = () => {
           />
         </div>
 
-        {/* 3. Сагсны дүрстэй хэсэг дээр totalCartCount-ийг ашиглав */}
         <div
           onClick={handleCart}
           className="w-9 h-9 flex rounded-full bg-[#F4F4F5] justify-center items-center cursor-pointer relative"
         >
           <ShopCartLogo />
-          {totalCartCount > 0 && (
+          {localData.length > 0 && (
             <span className="absolute -top-1 -right-1 bg-[#EF4444] text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
-              {totalCartCount}
+              {localData.length}
             </span>
           )}
         </div>
